@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router";
+import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import {
   MapPin,
   Clock,
@@ -25,10 +26,13 @@ import {
   Flame,
   Mouse,
   ChevronDown,
+  ZoomIn,
+  Facebook,
+  Instagram,
+  Twitter,
 } from "lucide-react";
 import { Navigation } from "../components/navigation";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
-import { CoverflowGallery } from "../components/coverflow-gallery";
 
 /* ═══════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -45,6 +49,55 @@ const C = {
 /* ═══════════════════════════════════════════════════════
    DATA
    ═══════════════════════════════════════════════════════ */
+
+const MENU_CATEGORIES = [
+  {
+    name: "Przystawki",
+    description: "Delikatne, wyrafinowane smaki na start",
+    menuCategory: "Przystawki",
+    highlight: {
+      name: "Foie gras z konfiturą figową",
+      description: "Delikatny foie gras z domową konfiturą z fig i chrupiącą brioche",
+      price: "72 zł",
+      img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=800&q=80",
+    },
+  },
+  {
+    name: "Zupy",
+    description: "Aksamitne buliony i kremy z tradycją",
+    menuCategory: "Zupy",
+    highlight: {
+      name: "Bisque z homara",
+      description: "Aksamitna zupa z homara z kroplą koniaku i kremem śmietanowym",
+      price: "48 zł",
+      img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80",
+    },
+  },
+  {
+    name: "Dania Główne",
+    description: "Mistrzowskie kompozycje smaków",
+    menuCategory: "Dania główne",
+    highlight: {
+      name: "Polędwica Wagyu",
+      description: "Japońskie wagyu A5, purée z truflami, redukcja porto",
+      price: "289 zł",
+      img: "https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800&q=80",
+    },
+  },
+  {
+    name: "Desery",
+    description: "Słodki finał kulinarnej podróży",
+    menuCategory: "Desery",
+    highlight: {
+      name: "Suflet Czekoladowy",
+      description: "Valrhona 70%, crème anglaise, złoty listek",
+      price: "78 zł",
+      img: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&q=80",
+    },
+  },
+];
+
+const DEFAULT_MENU_IMG = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80";
 
 const MENU_HIGHLIGHTS = [
   { id: 1, name: "Risotto truflowe", description: "Ryż carnaroli, wiórki czarnej trufli, dojrzały parmezan, redukcja białego wina", price: "158 zł", tag: "Wybór szefa kuchni" },
@@ -71,17 +124,54 @@ const TASTING_MENU = {
   ],
 };
 
-const EXPERIENCE_CARDS = [
-  { icon: Leaf, title: "Sezonowe składniki", text: "Nasze menu zmienia się wraz z porami roku. Każdy składnik pochodzi z zaufanych farm w całej Francji — zbierany w szczytowej dojrzałości, nigdy nie transportowany drogą lotniczą." },
-  { icon: Wine, title: "Dobór win przez sommeliera", text: "Nasz sommelier tworzy unikalną podróż winną dla każdego menu degustacyjnego — od Burgundii po Rodan — lub wybierz spośród ponad 400 etykiet." },
-  { icon: Users, title: "Spokojne tempo obsługi", text: "Dostosowujemy tempo każdego dania do rytmu Twojego wieczoru. Nasz zespół wyczuwa potrzeby bez narzucania się — niewidoczny, a zawsze obecny." },
-  { icon: Sparkles, title: "Kameralna atmosfera", text: "Miękkie kandlebarów, akcenty Art Deco i nie więcej niż 40 gości każdego wieczoru. Każdy stolik czuje się, jakby był zaprojektowany specjalnie dla Ciebie." },
+const EXPERIENCE_PILLARS = [
+  {
+    id: "sezonowosc",
+    number: "01",
+    tag: "Sezonowość",
+    title: "Składniki bez kompromisów",
+    description: "Menu zmienia się z rytmem natury. Produkty trafiają na talerz wtedy, kiedy są w szczytowej dojrzałości, nigdy nie transportowane drogą lotniczą.",
+    detail: "Współpracujemy z ponad 20 gospodarstwami ekologicznymi w promieniu 150 km od Warszawy. Szef kuchni każdego ranka odwiedza lokalnych dostawców. Sezonowość to nie trend — to fundament smaku.",
+    icon: Leaf,
+    accent: "M 0 50 Q 25 10, 50 50 Q 75 90, 100 50",
+  },
+  {
+    id: "sommelier",
+    number: "02",
+    tag: "Sommelier",
+    title: "Pairing prowadzony z wyczuciem",
+    description: "Dobór win nie jest dodatkiem, tylko częścią wieczoru. Każdy kieliszek wzmacnia smaki, czasem kontrastuje — zawsze z wyjaśnieniem.",
+    detail: "Nasza karta liczy ponad 400 pozycji z 12 krajów. Sommelier prowadzi przez pairing jak przez opowieść — każde wino ma swoją historię, która splata się z daniem na talerzu.",
+    icon: Wine,
+    accent: "M 0 80 C 30 80, 30 20, 50 20 C 70 20, 70 80, 100 80",
+  },
+  {
+    id: "serwis",
+    number: "03",
+    tag: "Serwis",
+    title: "Obsługa, która wyczuwa rytm",
+    description: "Nasz zespół obserwuje obecny wieczór, a nie sztywny czas. Gdy rozmowa płynie naturalnie — żadna intruzja.",
+    detail: "Każdy kelner przechodzi 6-miesięczne szkolenie w sztuce uważnej obecności. Nie przerywamy rozmów. Nie pędzimy. Czujemy, kiedy dolać wino, a kiedy zniknąć.",
+    icon: Clock,
+    accent: "M 0 50 L 30 50 L 50 20 L 70 80 L 100 50",
+  },
+  {
+    id: "atmosfera",
+    number: "04",
+    tag: "Atmosfera",
+    title: "Kameralność zaprojektowana świadomie",
+    description: "Miękkie światła, odległość między stolikami, akustyka sprzyjająca konwersacji. Wszystko bez przesadnego spektaklu.",
+    detail: "Wnętrze projektowało studio z Paryża specjalizujące się w akustyce restauracji. Każdy stolik ma własną strefę dźwięku. Oświetlenie zmienia się z porą wieczoru.",
+    icon: Sparkles,
+    accent: "M 10 50 A 40 40 0 1 1 90 50 A 40 40 0 1 1 10 50",
+  },
 ];
 
 const REVIEWS = [
-  { id: 1, name: "Sophie Laurent", role: "Google Review", rating: 5, text: "Niezwykłe doświadczenie kulinarne. Każde danie było arcydziełem, a atmosfera po prostu magiczna. Risotto truflowe jest absolutnie boskie." },
-  { id: 2, name: "James Richardson", role: "TripAdvisor", rating: 5, text: "Nienaganna obsługa, wyśmienita kuchnia i kameralna atmosfera. To fine dining w najczystszej postaci. Na pewno wrócimy." },
-  { id: 3, name: "Marie Dubois", role: "Le Figaro Reader", rating: 5, text: "Ukryty klejnot Warszawy. Dbałość o szczegóły jest niezwykła — od doboru win po prezentację każdego dania. Gorąco polecam." },
+  { id: 1, name: "Anna Kowalska", role: "Food Blogger", rating: 5, image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop", text: "Nie znajdziesz restauracji w Warszawie, która serwuje tak niesamowite jedzenie. Ich nowe menu mnie zaskoczyło. Wszystko nowe, nigdy nie widziałem i nie smakowałem takiego jedzenia jak tu.", size: "large" },
+  { id: 2, name: "Piotr Nowak", role: "Restaurateur", rating: 5, image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop", text: "Jedzenie w tej restauracji jest zawsze przyjemnością. Jedzenie jest konsekwentnie smaczne, pełne smaku i wyrafinowane.", size: "medium" },
+  { id: 3, name: "Maria Wiśniewska", role: "Architect", rating: 5, image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop", text: "Ta restauracja zawsze serwuje świeże, smaczne jedzenie przygotowane z wielką starannością i dbałością o jakość.", size: "medium" },
+  { id: 4, name: "Tomasz Lewandowski", role: "Chef", rating: 5, image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop", text: "Obsługa jest przyjazna, uważna i sprawna, co zapewnia płynną obsługę. Zawsze czuję się w pełni usatysfakcjonowany.", size: "small" },
 ];
 
 const PRESS = [
@@ -92,7 +182,7 @@ const PRESS = [
 ];
 
 const GALLERY_IMAGES = [
-  { id: 1, src: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80", alt: "Risotto truflowe" },
+  { id: 1, src: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=800&q=80", alt: "Risotto truflowe" },
   { id: 2, src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80", alt: "Elegancka sala jadalna" },
   { id: 3, src: "https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?w=800&q=80", alt: "Wykwintna kuchnia francuska" },
   { id: 4, src: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=800&q=80", alt: "Wybór z piwnicy winnej" },
@@ -119,25 +209,29 @@ const RESERVATION_STEPS = [
    HELPER COMPONENTS
    ═══════════════════════════════════════════════════════ */
 
-function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+function SectionHeader({ title, subtitle, label }: { title: string; subtitle?: string; label?: string }) {
   return (
-    <div className="text-center mb-16 md:mb-20">
-      <h2
-        className="text-4xl md:text-5xl mb-4"
-        style={{ fontFamily: C.serif, fontWeight: 300, letterSpacing: "0.03em", color: C.cream }}
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.7 }}
+      className="text-center mb-16 md:mb-20"
+    >
+      <div className="inline-flex items-center gap-4 mb-8">
+        <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+        {label && <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>{label}</span>}
+        <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+      </div>
+      <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
         {title}
       </h2>
-      <div className="h-px w-16 mx-auto mb-4" style={{ backgroundColor: C.gold, opacity: 0.5 }} />
       {subtitle && (
-        <p
-          className="text-base max-w-2xl mx-auto leading-relaxed mt-4"
-          style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}
-        >
+        <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
           {subtitle}
         </p>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -192,6 +286,277 @@ function GoldButton({
 }
 
 /* ═══════════════════════════════════════════════════════
+   GALLERY SECTION COMPONENT
+   ═══════════════════════════════════════════════════════ */
+
+function GalleryTile({
+  image,
+  idx,
+  className = "",
+  onImageClick,
+}: {
+  image: { src: string; alt: string };
+  idx: number;
+  className?: string;
+  onImageClick: (idx: number) => void;
+}) {
+  return (
+    <motion.button
+      className={`relative group overflow-hidden rounded-2xl focus:outline-none ${className}`}
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ delay: idx * 0.07, duration: 0.5 }}
+      whileHover={{ scale: 1.02, zIndex: 10 }}
+      onClick={() => onImageClick(idx)}
+    >
+      <img src={image.src} alt={image.alt} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+        <div
+          className="w-11 h-11 rounded-full flex items-center justify-center"
+          style={{ backgroundColor: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.35)" }}
+        >
+          <ZoomIn className="w-5 h-5 text-white" />
+        </div>
+      </div>
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ border: `2px solid ${C.gold}` }} />
+    </motion.button>
+  );
+}
+
+function GallerySection({ onImageClick }: { onImageClick: (idx: number) => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
+
+  const grid = GALLERY_IMAGES;
+
+  return (
+    <section ref={containerRef} id="gallery" className="relative py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-8">
+        {/* Header */}
+        <motion.div
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+        >
+          <div className="inline-flex items-center gap-4 mb-8">
+            <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+            <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Fotografia</span>
+            <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+          </div>
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+            Galeria Smaków
+          </h2>
+          <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
+            Odkryj wizualną podróż przez nasze kulinarne arcydzieła
+          </p>
+        </motion.div>
+
+        {/* Figma-layout grid */}
+        <div
+          className="grid grid-cols-4 gap-4"
+          style={{ gridAutoRows: "300px" }}
+        >
+          {/* 0 — duże lewe, 2×2 */}
+          <GalleryTile image={grid[0]} idx={0} className="col-span-2 row-span-2" onImageClick={onImageClick} />
+          {/* 1 — małe prawe górne */}
+          <GalleryTile image={grid[1]} idx={1} onImageClick={onImageClick} />
+          {/* 2 — małe prawe górne (obok 1) */}
+          <GalleryTile image={grid[2]} idx={2} onImageClick={onImageClick} />
+          {/* 3 — duże prawe, 2×2 */}
+          <GalleryTile image={grid[3]} idx={3} className="col-span-2 row-span-2" onImageClick={onImageClick} />
+          {/* 4, 5 — małe lewe dolne */}
+          <GalleryTile image={grid[4]} idx={4} onImageClick={onImageClick} />
+          <GalleryTile image={grid[5]} idx={5} onImageClick={onImageClick} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   EXPERIENCE SECTION COMPONENT
+   ═══════════════════════════════════════════════════════ */
+
+function ExperienceSection() {
+  const [activeId, setActiveId] = useState<string>("sezonowosc");
+  const active = EXPERIENCE_PILLARS.find((p) => p.id === activeId)!;
+  const ActiveIcon = active.icon;
+
+  return (
+    <section className="py-32 relative overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
+      {/* Decorative corner lines */}
+      <div className="absolute top-12 left-12 w-24 h-24 border-t border-l hidden lg:block" style={{ borderColor: `${C.gold}1A` }} />
+      <div className="absolute bottom-12 right-12 w-24 h-24 border-b border-r hidden lg:block" style={{ borderColor: `${C.gold}1A` }} />
+
+      <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-24"
+        >
+          <div className="inline-flex items-center gap-4 mb-8">
+            <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+            <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>
+              Cztery filary wieczoru
+            </span>
+            <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+          </div>
+
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+            Doświadczenie, które
+            <br />
+            <span className="italic">buduje się z detali</span>
+          </h2>
+        </motion.div>
+
+        {/* Tabs */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex justify-center mb-20"
+        >
+          <div className="inline-flex" style={{ border: `1px solid ${C.gold}26` }}>
+            {EXPERIENCE_PILLARS.map((p) => {
+              const Icon = p.icon;
+              const isActive = p.id === activeId;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setActiveId(p.id)}
+                  className="relative flex items-center gap-3 px-6 py-4 text-xs tracking-[0.15em] uppercase transition-all duration-500"
+                  style={{
+                    fontFamily: C.sans,
+                    backgroundColor: isActive ? `${C.gold}1A` : "transparent",
+                    color: isActive ? C.gold : "rgba(243,239,234,0.35)",
+                  }}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="hidden sm:inline">{p.tag}</span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute bottom-0 left-0 right-0 h-px"
+                      style={{ backgroundColor: C.gold }}
+                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        {/* Content area */}
+        <div className="relative" style={{ minHeight: '320px' }}>
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              key={activeId}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+                {/* Left — large number + decorative SVG */}
+                <div className="lg:col-span-5 flex flex-col items-center lg:items-end">
+                  <div className="relative">
+                    <span className="text-[180px] md:text-[240px] font-light leading-none select-none block" style={{ fontFamily: C.serif, color: `${C.gold}12` }}>
+                      {active.number}
+                    </span>
+
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" fill="none" preserveAspectRatio="xMidYMid meet">
+                      <motion.path
+                        d={active.accent}
+                        stroke={C.gold}
+                        strokeWidth="0.5"
+                        strokeDasharray="4 4"
+                        strokeOpacity="0.3"
+                        fill="none"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                      />
+                    </svg>
+
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                      <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ border: `1px solid ${C.gold}40` }}>
+                        <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ border: `1px solid ${C.gold}26` }}>
+                          <ActiveIcon className="w-6 h-6" style={{ color: C.gold }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right — text content */}
+                <div className="lg:col-span-7">
+                  <div className="max-w-lg">
+                    <span className="text-xs tracking-[0.3em] uppercase mb-4 block" style={{ color: C.gold, fontFamily: C.sans }}>
+                      {active.tag}
+                    </span>
+
+                    <h3 className="text-3xl md:text-4xl font-light mb-6 leading-tight" style={{ fontFamily: C.serif, color: C.cream }}>
+                      {active.title}
+                    </h3>
+
+                    <div className="w-12 h-px mb-6" style={{ backgroundColor: `${C.gold}4D` }} />
+
+                    <p className="leading-relaxed mb-6" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.65)", fontSize: "0.95rem" }}>
+                      {active.description}
+                    </p>
+
+                    <p className="leading-relaxed text-sm" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.4)" }}>
+                      {active.detail}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Bottom — progress dots + quote + CTA */}
+        <div className="mt-24 space-y-16">
+          <div className="flex justify-center gap-3">
+            {EXPERIENCE_PILLARS.map((p) => (
+              <button key={p.id} onClick={() => setActiveId(p.id)} className="group flex flex-col items-center gap-2">
+                <div
+                  className="h-px transition-all duration-500"
+                  style={{
+                    width: p.id === activeId ? "3rem" : "1.5rem",
+                    backgroundColor: p.id === activeId ? C.gold : `${C.gold}26`,
+                  }}
+                />
+                <span
+                  className="text-[10px] tracking-[0.2em] transition-colors duration-500"
+                  style={{ fontFamily: C.sans, color: p.id === activeId ? C.gold : "rgba(243,239,234,0.2)" }}
+                >
+                  {p.number}
+                </span>
+              </button>
+            ))}
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════ */
 
@@ -222,10 +587,16 @@ export function LandingPage() {
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxIdx, closeLightbox, prevImage, nextImage]);
 
+  /* ── menu highlight ── */
+  const [selectedCat, setSelectedCat] = useState<number | null>(null);
+
   /* ── sticky bar ── */
   const [showSticky, setShowSticky] = useState(false);
   useEffect(() => {
-    const onScroll = () => setShowSticky(window.scrollY > 600);
+    const onScroll = () => {
+      const nearBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 100;
+      setShowSticky(window.scrollY > 600 && !nearBottom);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -234,21 +605,19 @@ export function LandingPage() {
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
 
-  /* ── hero slideshow ── */
-  const [heroSlide, setHeroSlide] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  /* ── menu section parallax ── */
+  const menuSectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: menuScrollYProgress } = useScroll({
+    target: menuSectionRef,
+    offset: ["start end", "end start"],
+  });
+  const menuParallaxY = useTransform(menuScrollYProgress, [0, 1], [100, -100]);
 
-  /* ── hero entrance animation ── */
-  const [heroLoaded, setHeroLoaded] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setHeroLoaded(true), 150);
-    return () => clearTimeout(t);
-  }, []);
+  /* ── hero parallax ── */
+  const { scrollY } = useScroll();
+  const heroY1 = useTransform(scrollY, [0, 300], [0, 150]);
+  const heroY2 = useTransform(scrollY, [0, 300], [0, -100]);
+  const heroRotate = useTransform(scrollY, [0, 300], [0, 15]);
 
   return (
     <div
@@ -261,217 +630,294 @@ export function LandingPage() {
       <Navigation />
 
       {/* ═══════════════════════ 1. HERO ═══════════════════════ */}
-      <div className="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-12">
-        {/* Background slideshow */}
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          {HERO_SLIDES.map((src, i) => (
-            <img
-              key={i}
-              src={src}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{
-                filter: "brightness(0.25)",
-                opacity: heroSlide === i ? 1 : 0,
-                transform: heroSlide === i ? "scale(1.05)" : "scale(1)",
-                transition: "opacity 1.5s ease-in-out, transform 6s ease-out",
-              }}
-            />
-          ))}
-          <div
-            className="absolute inset-0"
-            style={{ background: "radial-gradient(ellipse at center, rgba(26,40,32,0.5) 0%, rgba(14,23,20,0.85) 100%)" }}
-          />
-        </div>
-
-        <div className="relative z-10 max-w-4xl w-full text-center py-32 md:py-40">
-          {/* Animated decorative line */}
-          <div
-            className="h-px mx-auto mb-10"
-            style={{
-              backgroundColor: C.gold,
-              opacity: heroLoaded ? 0.6 : 0,
-              width: heroLoaded ? "96px" : "0px",
-              transition: "all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-            }}
-          />
-
-          {/* Tagline */}
-          <p
-            className="text-sm uppercase tracking-[0.25em] mb-8"
-            style={{
-              fontFamily: C.sans,
-              fontWeight: 400,
-              color: C.gold,
-              opacity: heroLoaded ? 1 : 0,
-              transform: heroLoaded ? "translateY(0)" : "translateY(20px)",
-              transition: "all 0.8s ease-out 0.3s",
-            }}
-          >
-            Zał. 2018 · Warszawa, Polska
-          </p>
-
-          {/* Main title */}
-          <h1
-            className="text-5xl md:text-7xl lg:text-8xl tracking-wide mb-8"
-            style={{
-              fontFamily: C.serif,
-              fontWeight: 300,
-              letterSpacing: "0.05em",
-              color: C.cream,
-              opacity: heroLoaded ? 1 : 0,
-              transform: heroLoaded ? "translateY(0)" : "translateY(30px)",
-              transition: "all 1s ease-out 0.5s",
-            }}
-          >
-            La Maison Dorée
-          </h1>
-
-          {/* Description */}
-          <p
-            className="text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-10"
-            style={{
-              fontFamily: C.sans,
-              fontWeight: 300,
-              color: "rgba(243,239,234,0.75)",
-              opacity: heroLoaded ? 1 : 0,
-              transform: heroLoaded ? "translateY(0)" : "translateY(20px)",
-              transition: "all 0.8s ease-out 0.8s",
-            }}
-          >
-            Współczesna kuchnia francuska w kameralnej oprawie. Celebracja
-            wyrafinowanych smaków, sezonowych składników i sztuki fine dining.
-          </p>
-
-          {/* CTA Buttons */}
-          <div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
-            style={{
-              opacity: heroLoaded ? 1 : 0,
-              transform: heroLoaded ? "translateY(0)" : "translateY(20px)",
-              transition: "all 0.8s ease-out 1s",
-            }}
-          >
-            <GoldButton onClick={() => navigate("/reserve")}>ZAREZERWUJ STOLIK</GoldButton>
-            <GoldButton
-              variant="outline"
-              onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              ODKRYJ MENU
-            </GoldButton>
-          </div>
-
-          {/* Decorative line */}
-          <div
-            className="h-px mx-auto mb-10"
-            style={{
-              backgroundColor: C.gold,
-              opacity: heroLoaded ? 0.6 : 0,
-              width: heroLoaded ? "96px" : "0px",
-              transition: "all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.3s",
-            }}
-          />
-
-          {/* Press / Featured by */}
-          <div
-            className="mb-12"
-            style={{
-              opacity: heroLoaded ? 1 : 0,
-              transform: heroLoaded ? "translateY(0)" : "translateY(15px)",
-              transition: "all 0.8s ease-out 1.4s",
-            }}
-          >
-            <p
-              className="text-sm uppercase tracking-[0.3em] mb-8"
-              style={{ fontFamily: C.sans, fontWeight: 600, color: "rgba(182,138,58,0.8)" }}
-            >
-              Polecany przez
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl mx-auto">
-              {PRESS.map((p, i) => (
-                <div key={i} className="text-center px-2">
-                  <h4
-                    className="text-xl"
-                    style={{ fontFamily: C.serif, fontWeight: 600, color: "rgba(243,239,234,0.85)" }}
-                  >
-                    {p.name}
-                  </h4>
-                  <p
-                    className="text-sm italic mt-2 leading-relaxed"
-                    style={{ fontFamily: C.serif, fontWeight: 300, color: "rgba(243,239,234,0.45)" }}
-                  >
-                    "{p.quote}"
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Scroll indicator */}
-          <div
-            className="flex flex-col items-center gap-2 cursor-pointer group"
-            onClick={() => document.getElementById("story")?.scrollIntoView({ behavior: "smooth" })}
-            style={{
-              opacity: heroLoaded ? 0.5 : 0,
-              transition: "opacity 0.8s ease-out 1.6s",
-            }}
-          >
-            <div
-              className="w-6 h-10 rounded-full flex items-start justify-center pt-2"
-              style={{ border: "1.5px solid rgba(243,239,234,0.4)" }}
-            >
-              <div
-                className="w-1 h-2 rounded-full"
-                style={{
-                  backgroundColor: C.cream,
-                  animation: "scrollDot 2s ease-in-out infinite",
-                }}
-              />
-            </div>
-            <span
-              className="text-[10px] uppercase tracking-[0.2em]"
-              style={{ fontFamily: C.sans, fontWeight: 400, color: "rgba(243,239,234,0.4)" }}
-            >
-              Przewiń
-            </span>
-          </div>
-        </div>
-
-        {/* Slide indicators */}
-        <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-2"
-          style={{
-            opacity: heroLoaded ? 0.6 : 0,
-            transition: "opacity 0.8s ease-out 1.8s",
-          }}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ background: "linear-gradient(135deg, #0a1612 0%, #0f1915 50%, #1a2820 100%)" }}>
+        {/* Massive floating background text */}
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.04]"
+          style={{ y: heroY1 }}
         >
-          {HERO_SLIDES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setHeroSlide(i)}
-              className="rounded-full transition-all duration-500"
-              style={{
-                width: heroSlide === i ? "24px" : "6px",
-                height: "6px",
-                backgroundColor: heroSlide === i ? C.gold : "rgba(243,239,234,0.3)",
-              }}
-            />
-          ))}
-        </div>
-      </div>
+          <h1
+            className="text-[20rem] font-light text-[#d4a574] whitespace-nowrap"
+            style={{ fontFamily: C.serif }}
+          >
+            DORÉE
+          </h1>
+        </motion.div>
 
-      {/* Keyframe for scroll dot */}
+        {/* Floating decorative circle */}
+        <motion.div
+          className="absolute top-24 right-[20.75rem] w-28 h-28 border-4 border-[#b68a3a] rounded-full opacity-20"
+          animate={{ rotate: 360, scale: [1, 1.2, 1] }}
+          transition={{
+            rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+            scale: { duration: 3, repeat: Infinity },
+          }}
+        />
+
+        {/* Floating decorative diamond */}
+        <motion.div className="absolute bottom-40 left-[20.75rem] w-40 h-40" style={{ rotate: heroRotate }}>
+          <div className="w-full h-full border-2 border-[#d4a574] opacity-10" style={{ transform: "rotate(45deg)" }} />
+        </motion.div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-8 py-24 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+            {/* Left — text */}
+            <motion.div
+              initial={{ opacity: 0, x: -80 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="space-y-8"
+            >
+              {/* Badge */}
+              <div
+                className="inline-flex items-center gap-3 px-6 py-3 rounded-full"
+                style={{ backgroundColor: "rgba(182,138,58,0.15)", border: "1px solid #b68a3a" }}
+              >
+                <Sparkles className="w-5 h-5" style={{ color: C.gold }} />
+                <span
+                  className="text-sm font-medium tracking-wider uppercase"
+                  style={{ fontFamily: C.sans, color: C.gold }}
+                >
+                  Smak Który Zapada w Pamięć
+                </span>
+              </div>
+
+              {/* Title */}
+              <div className="space-y-2">
+                <motion.h1
+                  className="text-6xl md:text-7xl lg:text-8xl font-light leading-[0.95]"
+                  style={{ fontFamily: C.serif, color: C.cream }}
+                >
+                  <motion.span
+                    className="block"
+                    animate={{ x: [0, -10, 0] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                  >
+                    Wejdź
+                  </motion.span>
+                  <motion.span
+                    className="block"
+                    style={{ color: C.gold }}
+                    animate={{ x: [0, 10, 0] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                  >
+                    Do Świata
+                  </motion.span>
+                  <motion.span
+                    className="block"
+                  >
+                    La Maison Dorée
+                  </motion.span>
+                </motion.h1>
+
+                <motion.p
+                  className="text-lg max-w-lg leading-relaxed pl-4"
+                  style={{
+                    fontFamily: C.sans,
+                    fontWeight: 300,
+                    color: "rgba(243,239,234,0.8)",
+                    borderLeft: `4px solid ${C.gold}`,
+                  }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  Gdzie każde danie to podróż przez smaki, a każdy wieczór to niezapomniane przeżycie kulinarne.
+                </motion.p>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex flex-wrap gap-4">
+                <motion.button
+                  className="group relative px-8 py-4 font-semibold rounded-full flex items-center gap-3 overflow-hidden"
+                  style={{
+                    backgroundColor: C.gold,
+                    color: "#0a1612",
+                    fontFamily: C.sans,
+                    boxShadow: "0 8px 32px rgba(182,138,58,0.4)",
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate("/reserve")}
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-[#d4a574] to-[#b68a3a]"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: 0 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <span className="relative z-10">Zamów Teraz</span>
+                  <motion.div
+                    className="relative z-10 w-6 h-6 bg-[#0a1612] rounded-full flex items-center justify-center"
+                    whileHover={{ x: 5 }}
+                  >
+                    <ArrowRight className="w-4 h-4" style={{ color: C.gold }} />
+                  </motion.div>
+                </motion.button>
+
+                <motion.button
+                  className="px-8 py-4 font-semibold rounded-full transition-all"
+                  style={{
+                    border: `2px solid ${C.gold}`,
+                    color: C.gold,
+                    fontFamily: C.sans,
+                    backgroundColor: "transparent",
+                  }}
+                  whileHover={{ scale: 1.05, backgroundColor: "rgba(182,138,58,0.1)" }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
+                >
+                  Poznaj Menu
+                </motion.button>
+              </div>
+
+              {/* Stats */}
+              <motion.div
+                className="flex gap-10 pt-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                {[
+                  { value: "15+", label: "Lat Tradycji" },
+                  { value: "50K+", label: "Szczęśliwych Gości" },
+                  { value: "100%", label: "Pasji" },
+                ].map((stat, i) => (
+                  <div key={i} className="space-y-1">
+                    <div
+                      className="text-4xl font-light"
+                      style={{ fontFamily: C.serif, color: C.gold }}
+                    >
+                      {stat.value}
+                    </div>
+                    <div
+                      className="text-xs tracking-wider uppercase"
+                      style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.6)" }}
+                    >
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            </motion.div>
+
+            {/* Right — floating image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative"
+              style={{ y: heroY2 }}
+            >
+              <motion.div
+                whileHover={{ rotate: 3, scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+                className="relative"
+              >
+                {/* Glow */}
+                <div
+                  className="absolute -inset-6 blur-3xl opacity-20"
+                  style={{ background: "linear-gradient(135deg, #b68a3a, #d4a574)" }}
+                />
+                {/* Blob image */}
+                <div
+                  className="relative w-full aspect-square overflow-hidden shadow-2xl"
+                  style={{ borderRadius: "40% 60% 70% 30% / 60% 30% 70% 40%" }}
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1628838463043-b81a343794d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+                    alt="Signature dish"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </motion.div>
+
+              {/* Floating badge */}
+              <motion.div
+                className="absolute -top-8 -right-4 rounded-full p-5 shadow-2xl"
+                style={{
+                  backgroundColor: "#0a1612",
+                  border: `4px solid ${C.gold}`,
+                  transform: "rotate(45deg)",
+                }}
+                animate={{ y: [0, -10, 0] }}
+                transition={{
+                  y: { duration: 3, repeat: Infinity },
+                }}
+              >
+                <div className="text-center">
+                  <Flame className="w-7 h-7 mx-auto mb-1" style={{ color: C.gold }} />
+                  <div
+                    className="text-sm font-medium"
+                    style={{ fontFamily: C.sans, color: C.cream }}
+                  >
+                    Chef's
+                  </div>
+                  <div
+                    className="text-xs"
+                    style={{ fontFamily: C.sans, color: C.gold }}
+                  >
+                    Special
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Price tag */}
+              <motion.div
+                className="absolute -bottom-4 -left-4 px-8 py-4 shadow-xl"
+                style={{
+                  backgroundColor: C.gold,
+                  transform: "rotate(-5deg)",
+                }}
+                whileHover={{ rotate: -8, scale: 1.1 }}
+              >
+                <div
+                  className="text-xs opacity-70 mb-1"
+                  style={{ fontFamily: C.sans, color: "#0a1612" }}
+                >
+                  Od
+                </div>
+                <div
+                  className="text-3xl font-light"
+                  style={{ fontFamily: C.serif, color: "#0a1612" }}
+                >
+                  89 PLN
+                </div>
+              </motion.div>
+            </motion.div>
+
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <span
+            className="text-xs tracking-wider uppercase"
+            style={{ fontFamily: C.sans, color: C.gold }}
+          >
+            Przewiń
+          </span>
+          <div
+            className="w-px h-16"
+            style={{ background: `linear-gradient(to bottom, ${C.gold}, transparent)` }}
+          />
+        </motion.div>
+      </section>
+
       <style>{`
-        @keyframes scrollDot {
-          0%, 100% { opacity: 1; transform: translateY(0); }
-          50% { opacity: 0.3; transform: translateY(8px); }
+        @keyframes rotateDash {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
       `}</style>
 
-      <div className="h-px w-full" style={{ backgroundColor: "rgba(182,138,58,0.15)" }} />
-
       {/* ═══════════════════════ 2. BRAND STORY ═══════════════════════ */}
-      <section id="story" className="px-6 md:px-12 py-24 md:py-32">
+      <section id="story" className="px-6 md:px-12 py-24 md:py-32" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Image */}
           <div className="rounded-2xl overflow-hidden" style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.4)" }}>
@@ -486,21 +932,20 @@ export function LandingPage() {
 
           {/* Copy */}
           <div className="space-y-6">
-            <p
-              className="text-sm uppercase tracking-[0.2em]"
-              style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold }}
-            >
-              Nasza historia
-            </p>
+            <div className="inline-flex items-center gap-4 mb-2">
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+              <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Nasza historia</span>
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+            </div>
             <h2
-              className="text-4xl md:text-5xl leading-tight"
-              style={{ fontFamily: C.serif, fontWeight: 300, color: C.cream }}
+              className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]"
+              style={{ fontFamily: C.serif, color: C.cream }}
             >
               Gdzie tradycja spotyka śmiąłość
             </h2>
             <p
               className="text-base leading-relaxed"
-              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.7)", lineHeight: 1.8 }}
+              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}
             >
               La Maison Dorée powstała z prostego przekonania: że wielka
               restauracja to nie tylko to, co jest na talerzu, ale także historia,
@@ -510,7 +955,7 @@ export function LandingPage() {
             </p>
             <p
               className="text-base leading-relaxed"
-              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.7)", lineHeight: 1.8 }}
+              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}
             >
               Każdego wieczoru przyjmujemy nie więcej niż czterdzieścioro gości
               w przestrzeni inspirowanej paryskimi salonami lat 20. XX wieku —
@@ -543,26 +988,25 @@ export function LandingPage() {
       {/* ═══════════════════════ 3. CHEF INTRODUCTION ═══════════════════════ */}
       <section
         className="px-6 md:px-12 py-24 md:py-32"
-        style={{ borderTop: "1px solid rgba(182,138,58,0.1)" }}
+        style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}
       >
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Copy (left on desktop) */}
           <div className="space-y-6 order-2 lg:order-1">
-            <p
-              className="text-sm uppercase tracking-[0.2em]"
-              style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold }}
-            >
-              Szef kuchni
-            </p>
+            <div className="inline-flex items-center gap-4 mb-2">
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+              <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Szef kuchni</span>
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+            </div>
             <h2
-              className="text-4xl md:text-5xl leading-tight"
-              style={{ fontFamily: C.serif, fontWeight: 300, color: C.cream }}
+              className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]"
+              style={{ fontFamily: C.serif, color: C.cream }}
             >
               Julien Moreau
             </h2>
             <p
               className="text-base leading-relaxed"
-              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.7)", lineHeight: 1.8 }}
+              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}
             >
               Urodzony w Lyonie, szkolony pod okiem Alaina Ducasse'a i Anne-Sophie Pic,
               Julien Moreau spędził dekadę w restauracjach z gwiazdkami Michelin w Paryżu,
@@ -570,7 +1014,7 @@ export function LandingPage() {
             </p>
             <p
               className="text-base leading-relaxed"
-              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.7)", lineHeight: 1.8 }}
+              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}
             >
               Jego kuchnia zakorzeniona jest w kanonie francuskim, ale kształtowana
               przez niespokojną ciekawość — japońska precyzja, nordycki minimalizm
@@ -617,377 +1061,636 @@ export function LandingPage() {
         </div>
       </section>
 
-      <div className="h-px w-full" style={{ backgroundColor: "rgba(182,138,58,0.15)" }} />
-
       {/* ═══════════════════════ 4. DINING EXPERIENCE ═══════════════════════ */}
-      <section className="px-6 md:px-12 py-24 md:py-32">
-        <div className="max-w-6xl mx-auto">
-          <SectionHeader
-            title="Doświadczenie"
-            subtitle="Fine dining w La Maison Dorée to więcej niż posiłek — to wieczór skomponowany tak, by poruszać wszystkie zmysły."
-          />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {EXPERIENCE_CARDS.map((card, i) => {
-              const Icon = card.icon;
-              return (
-                <div
-                  key={i}
-                  className="rounded-2xl p-8 text-center transition-transform duration-300 hover:-translate-y-1"
-                  style={{
-                    backgroundColor: C.card,
-                    border: "1px solid rgba(243,239,234,0.05)",
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-                  }}
-                >
-                  <div
-                    className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5"
-                    style={{ backgroundColor: "rgba(182,138,58,0.12)", border: "1px solid rgba(182,138,58,0.25)" }}
-                  >
-                    <Icon size={24} style={{ color: C.gold }} />
-                  </div>
-                  <h3
-                    className="text-xl mb-3"
-                    style={{ fontFamily: C.serif, fontWeight: 500, color: C.cream }}
-                  >
-                    {card.title}
-                  </h3>
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)", lineHeight: 1.7 }}
-                  >
-                    {card.text}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <ExperienceSection />
 
       {/* ═══════════════════════ 5. SEASONAL TASTING MENU ═══════════════════════ */}
-      <section
-        id="tasting"
-        className="px-6 md:px-12 py-24 md:py-32"
-        style={{ borderTop: "1px solid rgba(182,138,58,0.1)" }}
-      >
-        <div className="max-w-5xl mx-auto">
-          <SectionHeader title="Sezonowe menu degustacyjne" />
+      <section id="tasting" className="relative py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
+        {/* Corner accents */}
+        <div className="absolute top-12 left-12 w-20 h-20 hidden lg:block" style={{ borderTop: "1px solid rgba(182,138,58,0.1)", borderLeft: "1px solid rgba(182,138,58,0.1)" }} />
+        <div className="absolute bottom-12 right-12 w-20 h-20 hidden lg:block" style={{ borderBottom: "1px solid rgba(182,138,58,0.1)", borderRight: "1px solid rgba(182,138,58,0.1)" }} />
 
-          <div
-            className="rounded-2xl p-10 md:p-14"
-            style={{
-              backgroundColor: C.card,
-              border: "1px solid rgba(182,138,58,0.15)",
-              boxShadow: "0 12px 48px rgba(0,0,0,0.35)",
-            }}
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 relative z-10">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-20"
           >
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-10">
-              <div>
-                <h3
-                  className="text-3xl md:text-4xl mb-2"
-                  style={{ fontFamily: C.serif, fontWeight: 400, color: C.cream }}
-                >
-                  {TASTING_MENU.title}
-                </h3>
-                <p
-                  className="text-base italic"
-                  style={{ fontFamily: C.serif, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}
-                >
-                  {TASTING_MENU.subtitle}
-                </p>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-2xl" style={{ fontFamily: C.sans, fontWeight: 600, color: C.gold }}>
-                  {TASTING_MENU.price}
-                </p>
-                <p className="text-sm mt-1" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.5)" }}>
-                  {TASTING_MENU.pairing}
-                </p>
-              </div>
+            <div className="inline-flex items-center gap-4 mb-8">
+              <div className="h-px w-8" style={{ backgroundColor: "rgba(182,138,58,0.5)" }} />
+              <span className="text-xs tracking-[0.4em] uppercase" style={{ fontFamily: C.sans, color: C.gold }}>
+                Sezon wiosenny 2026
+              </span>
+              <div className="h-px w-8" style={{ backgroundColor: "rgba(182,138,58,0.5)" }} />
             </div>
+            <h2 className="text-5xl md:text-6xl lg:text-7xl leading-[0.95] mb-6" style={{ fontFamily: C.serif, color: C.cream }}>
+              Menu<br />
+              <span className="italic">Degustacyjne</span>
+            </h2>
+            <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
+              Siedem dań, które opowiadają historię. Sezonowe składniki i tradycyjne techniki francuskiej kuchni.
+            </p>
+          </motion.div>
 
-            <div className="h-px w-full mb-8" style={{ backgroundColor: "rgba(182,138,58,0.15)" }} />
-
-            <ol className="space-y-4">
-              {TASTING_MENU.courses.map((course, i) => (
-                <li key={i} className="flex items-start gap-4">
-                  <span
-                    className="text-xs font-semibold mt-1 w-6 h-6 flex items-center justify-center rounded-full flex-shrink-0"
-                    style={{ backgroundColor: "rgba(182,138,58,0.12)", color: C.gold, fontFamily: C.sans }}
-                  >
-                    {i + 1}
-                  </span>
-                  <p
-                    className="text-base leading-relaxed"
-                    style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.75)" }}
-                  >
-                    {course}
-                  </p>
-                </li>
-              ))}
-            </ol>
-
-            <div className="flex flex-col sm:flex-row gap-4 mt-10">
-              <GoldButton onClick={() => navigate("/reserve")}>ZAREZERWUJ NA MENU DEGUSTACYJNE</GoldButton>
-              <GoldButton variant="outline" onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}>
-                ZOBACZ À LA CARTE
-              </GoldButton>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="h-px w-full" style={{ backgroundColor: "rgba(182,138,58,0.15)" }} />
-
-      {/* ═══════════════════════ 6. MENU HIGHLIGHTS ═══════════════════════ */}
-      <section id="menu" className="px-6 md:px-12 py-24 md:py-32">
-        <div className="max-w-6xl mx-auto">
-          <SectionHeader title="Wybór dań à la carte" subtitle="Zespół potraw sygnaturowych z naszego aktualnego menu." />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            {MENU_HIGHLIGHTS.map((item) => (
-              <div
-                key={item.id}
-                className="rounded-2xl p-8 transition-transform duration-300 hover:-translate-y-1"
-                style={{
-                  backgroundColor: C.card,
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-                  border: "1px solid rgba(243,239,234,0.05)",
-                }}
+          {/* Dishes — alternating layout */}
+          <div className="space-y-0">
+            {[
+              { number: "I",   name: "Amuse-bouche",          description: "Tatarak z łososia ze szczypiorkiem i kawiorem, galaretka cytrynowa",           img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80" },
+              { number: "II",  name: "Foie gras poêlé",       description: "Pieczona foie gras z chutney z fig, brioche i redukcją balsamiczną",            img: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80" },
+              { number: "III", name: "Velouté de champignons",description: "Kremowy krem z leśnych grzybów z oliwą truflową",                               img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80" },
+              { number: "IV",  name: "Saint-Jacques rôties",  description: "Przegrzebki z purée z topinamburu, pancetta i masłem szałwiowym",               img: "https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?w=400&q=80" },
+              { number: "V",   name: "Carré d'agneau",        description: "Sezonowane mięso jagnięce z rozmarynem, gratin dauphinois",                     img: "https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&q=80" },
+              { number: "VI",  name: "Plateau de fromages",   description: "Wybór francuskich serów z miodem truflowym i orzechami",                        img: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=400&q=80" },
+              { number: "VII", name: "Tarte Tatin revisitée", description: "Autorska wersja klasyki z jabłkami karmelizowanymi, lody waniliowe",            img: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&q=80" },
+            ].map((dish, index) => (
+              <motion.div
+                key={dish.number}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.05 }}
+                className="group relative first:border-t"
+                style={{ borderBottom: "1px solid rgba(182,138,58,0.1)" }}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <h3
-                    className="text-2xl flex-1"
-                    style={{ fontFamily: C.serif, fontWeight: 400, color: C.cream, letterSpacing: "0.02em" }}
-                  >
-                    {item.name}
-                  </h3>
-                  <span className="text-xl ml-4" style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold }}>
-                    {item.price}
-                  </span>
-                </div>
-
-                {item.tag && (
-                  <div
-                    className="inline-block px-3 py-1 rounded-full mb-3"
-                    style={{ backgroundColor: "rgba(182,138,58,0.12)", border: "1px solid rgba(182,138,58,0.25)" }}
-                  >
-                    <span
-                      className="text-xs uppercase tracking-wider"
-                      style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold, letterSpacing: "0.1em" }}
-                    >
-                      {item.tag}
+                <div className={`flex items-center gap-6 md:gap-10 py-7 md:py-8 px-4 md:px-8 transition-all duration-500 ${index % 2 === 1 ? "md:flex-row-reverse" : ""}`}>
+                  {/* Number */}
+                  <div className="hidden md:flex items-center justify-center w-16 flex-shrink-0">
+                    <span className="text-4xl transition-colors duration-500 group-hover:opacity-50" style={{ fontFamily: C.serif, color: "rgba(182,138,58,0.2)" }}>
+                      {dish.number}
                     </span>
                   </div>
-                )}
-
-                <p
-                  className="text-sm leading-relaxed"
-                  style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)", lineHeight: 1.7 }}
-                >
-                  {item.description}
-                </p>
-              </div>
+                  {/* Image */}
+                  <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl overflow-hidden flex-shrink-0 transition-all duration-500 group-hover:shadow-[0_0_30px_rgba(182,138,58,0.1)]" style={{ border: "1px solid rgba(182,138,58,0.1)" }}>
+                    <img src={dish.img} alt={dish.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  </div>
+                  {/* Text */}
+                  <div className={`flex-1 min-w-0 ${index % 2 === 1 ? "md:text-right" : ""}`}>
+                    <div className={`flex items-baseline gap-3 mb-2 ${index % 2 === 1 ? "md:justify-end" : ""}`}>
+                      <span className="text-xs tracking-widest md:hidden" style={{ fontFamily: C.sans, color: "rgba(182,138,58,0.3)" }}>{dish.number}</span>
+                      <h3 className="text-xl md:text-2xl transition-colors duration-500 group-hover:text-[#B68A3A]" style={{ fontFamily: C.serif, color: C.cream }}>
+                        {dish.name}
+                      </h3>
+                    </div>
+                    <p className="text-sm md:text-base leading-relaxed" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.55)" }}>
+                      {dish.description}
+                    </p>
+                  </div>
+                  {/* Hover arrow */}
+                  <div className="hidden md:flex items-center flex-shrink-0">
+                    <motion.div animate={{ opacity: 0, x: -10 }} whileHover={{ opacity: 1, x: 0 }} className="group-hover:opacity-100">
+                      <ArrowRight size={20} style={{ color: "rgba(182,138,58,0.5)" }} />
+                    </motion.div>
+                  </div>
+                </div>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" style={{ backgroundColor: "rgba(182,138,58,0.02)" }} />
+              </motion.div>
             ))}
           </div>
 
-          <div className="text-center mt-12">
+          {/* FIN */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="flex items-center justify-center gap-4 mt-16 mb-16"
+          >
+            <div className="h-px w-16" style={{ background: "linear-gradient(to right, transparent, rgba(182,138,58,0.3))" }} />
+            <span className="text-xs tracking-[0.4em]" style={{ fontFamily: C.sans, color: "rgba(182,138,58,0.3)" }}>FIN</span>
+            <div className="h-px w-16" style={{ background: "linear-gradient(to left, transparent, rgba(182,138,58,0.3))" }} />
+          </motion.div>
+
+          {/* Price & CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <p className="text-4xl md:text-5xl mb-2" style={{ fontFamily: C.serif, color: C.cream }}>
+              498 zł <span className="text-lg" style={{ color: "rgba(243,239,234,0.4)" }}>/ osoba</span>
+            </p>
+            <p className="text-sm mb-10" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.4)" }}>
+              Dopasowanie win +268 zł
+            </p>
+            <div className="group inline-block">
+              <button
+                onClick={() => navigate("/reserve")}
+                className="relative px-10 py-4 overflow-hidden rounded-full text-xs tracking-[0.2em] text-[#B68A3A] group-hover:text-[#0E1714] transition-colors duration-500"
+                style={{ border: `1px solid ${C.gold}`, fontFamily: C.sans }}
+              >
+                <span className="absolute inset-0 z-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" style={{ backgroundColor: C.gold }} />
+                <span className="relative z-10 flex items-center gap-3">
+                  ZAREZERWUJ DEGUSTACJĘ
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ 6. MENU HIGHLIGHTS ═══════════════════════ */}
+      <section ref={menuSectionRef} id="menu" className="relative px-6 md:px-12 py-24 md:py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <SectionHeader title="Odkryj Nasze Menu" subtitle="Kliknij kategorię, aby zobaczyć nasze najlepsze danie. Strzałka prowadzi do pełnego menu." label="Nasza kuchnia" />
+
+          {/* 3-left / blob / 3-right */}
+          <div className="flex items-start justify-center gap-24 mb-12">
+
+            {/* Left column */}
+            <div className="hidden lg:flex flex-col gap-28 w-72 flex-shrink-0" style={{ height: "460px", overflow: "visible" }}>
+              {MENU_CATEGORIES.slice(0, 2).map((cat, i) => {
+                const isActive = selectedCat === i;
+                return (
+                  <motion.div
+                    key={cat.name}
+                    initial={{ opacity: 0, x: -40 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.1 + i * 0.1 }}
+                    whileHover={{ scale: 1.03 }}
+                  >
+                    <div
+                      className="rounded-2xl p-6 cursor-pointer"
+                      onClick={() => setSelectedCat(selectedCat === i ? null : i)}
+                      style={{
+                        backgroundColor: C.card,
+                        border: isActive ? `1px solid ${C.gold}` : "1px solid rgba(182,138,58,0.2)",
+                        boxShadow: isActive ? "0 8px 32px rgba(182,138,58,0.2)" : "0 8px 32px rgba(0,0,0,0.4)",
+                        transition: "border 0.25s, box-shadow 0.25s",
+                      }}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 style={{ fontFamily: C.serif, fontSize: 23, fontWeight: 400, color: isActive ? C.gold : C.cream, transition: "color 0.25s" }}>
+                          {cat.name}
+                        </h3>
+                        <motion.button
+                          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: C.gold }}
+                          whileHover={{ rotate: 45 }}
+                          onClick={(e) => { e.stopPropagation(); navigate("/menu", { state: { category: cat.menuCategory } }); }}
+                          aria-label={`Przejdź do ${cat.name}`}
+                        >
+                          <ArrowRight size={14} color="#0a1612" />
+                        </motion.button>
+                      </div>
+                      <p style={{ fontFamily: C.sans, fontSize: 13, color: "rgba(243,239,234,0.55)", lineHeight: 1.5 }}>
+                        {cat.description}
+                      </p>
+                      <div className="mt-3 h-px w-8" style={{ background: `linear-gradient(to right, ${C.gold}, transparent)` }} />
+                      <AnimatePresence>
+                        {isActive && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="pt-3 mt-2 border-t" style={{ borderColor: "rgba(182,138,58,0.2)" }}>
+                              <p style={{ fontFamily: C.serif, fontSize: 16, color: C.cream, marginBottom: 4 }}>
+                                {cat.highlight.name}
+                              </p>
+                              <p style={{ fontFamily: C.sans, fontSize: 12, color: "rgba(243,239,234,0.55)", lineHeight: 1.5, marginBottom: 5 }}>
+                                {cat.highlight.description}
+                              </p>
+                              <p style={{ fontFamily: C.serif, fontSize: 16, color: C.gold }}>
+                                {cat.highlight.price}
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Central blob image */}
+            <motion.div
+              className="relative w-[460px] h-[460px] flex-shrink-0 self-center"
+              initial={{ scale: 0, rotate: -180 }}
+              whileInView={{ scale: 1, rotate: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, type: "spring" }}
+            >
+              <div
+                className="absolute inset-0 overflow-hidden shadow-2xl"
+                style={{ borderRadius: "40% 60% 70% 30% / 60% 30% 70% 40%", border: `6px solid ${C.gold}` }}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={selectedCat ?? -1}
+                    src={selectedCat !== null ? MENU_CATEGORIES[selectedCat].highlight.img : DEFAULT_MENU_IMG}
+                    alt={selectedCat !== null ? MENU_CATEGORIES[selectedCat].highlight.name : "La Maison Dorée"}
+                    className="w-full h-full object-cover"
+                    style={{ filter: "brightness(0.85)" }}
+                    initial={{ opacity: 0, scale: 1.08 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.45 }}
+                  />
+                </AnimatePresence>
+              </div>
+              <motion.div
+                className="absolute rounded-full"
+                style={{ inset: -18, border: `2px dashed ${C.gold}`, opacity: 0.35 }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+              />
+            </motion.div>
+
+            {/* Right column */}
+            <div className="hidden lg:flex flex-col gap-28 w-72 flex-shrink-0" style={{ height: "460px", overflow: "visible" }}>
+              {MENU_CATEGORIES.slice(2).map((cat, i) => {
+                const realIdx = i + 2;
+                const isActive = selectedCat === realIdx;
+                return (
+                  <motion.div
+                    key={cat.name}
+                    initial={{ opacity: 0, x: 40 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.1 + i * 0.1 }}
+                    whileHover={{ scale: 1.03 }}
+                  >
+                    <div
+                      className="rounded-2xl p-6 cursor-pointer"
+                      onClick={() => setSelectedCat(selectedCat === realIdx ? null : realIdx)}
+                      style={{
+                        backgroundColor: C.card,
+                        border: isActive ? `1px solid ${C.gold}` : "1px solid rgba(182,138,58,0.2)",
+                        boxShadow: isActive ? "0 8px 32px rgba(182,138,58,0.2)" : "0 8px 32px rgba(0,0,0,0.4)",
+                        transition: "border 0.25s, box-shadow 0.25s",
+                      }}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 style={{ fontFamily: C.serif, fontSize: 23, fontWeight: 400, color: isActive ? C.gold : C.cream, transition: "color 0.25s" }}>
+                          {cat.name}
+                        </h3>
+                        <motion.button
+                          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: C.gold }}
+                          whileHover={{ rotate: 45 }}
+                          onClick={(e) => { e.stopPropagation(); navigate("/menu", { state: { category: cat.menuCategory } }); }}
+                          aria-label={`Przejdź do ${cat.name}`}
+                        >
+                          <ArrowRight size={14} color="#0a1612" />
+                        </motion.button>
+                      </div>
+                      <p style={{ fontFamily: C.sans, fontSize: 13, color: "rgba(243,239,234,0.55)", lineHeight: 1.5 }}>
+                        {cat.description}
+                      </p>
+                      <div className="mt-3 h-px w-8" style={{ background: `linear-gradient(to right, ${C.gold}, transparent)` }} />
+                      <AnimatePresence>
+                        {isActive && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="pt-3 mt-2 border-t" style={{ borderColor: "rgba(182,138,58,0.2)" }}>
+                              <p style={{ fontFamily: C.serif, fontSize: 16, color: C.cream, marginBottom: 4 }}>
+                                {cat.highlight.name}
+                              </p>
+                              <p style={{ fontFamily: C.sans, fontSize: 12, color: "rgba(243,239,234,0.55)", lineHeight: 1.5, marginBottom: 5 }}>
+                                {cat.highlight.description}
+                              </p>
+                              <p style={{ fontFamily: C.serif, fontSize: 16, color: C.gold }}>
+                                {cat.highlight.price}
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="text-center">
             <GoldButton variant="outline" onClick={() => navigate("/menu")}>PEŁNE MENU</GoldButton>
           </div>
         </div>
       </section>
 
-      <div className="h-px w-full" style={{ backgroundColor: "rgba(182,138,58,0.15)" }} />
-
-      {/* ═══════════════════════ 7. GALLERY — coverflow carousel ═══════════════════════ */}
-      <section id="gallery" className="px-6 md:px-12 py-24 md:py-32">
-        <div className="max-w-6xl mx-auto">
-          <SectionHeader title="Galeria" />
-
-          <CoverflowGallery
-            images={GALLERY_IMAGES}
-            onImageClick={(idx) => setLightboxIdx(idx)}
-          />
-        </div>
-      </section>
-
-
-
-      <div className="h-px w-full" style={{ backgroundColor: "rgba(182,138,58,0.15)" }} />
+      {/* ═══════════════════════ 7. GALLERY ═══════════════════════ */}
+      <GallerySection onImageClick={(idx) => setLightboxIdx(idx)} />
 
       {/* ═══════════════════════ 9. TESTIMONIALS ═══════════════════════ */}
-      <section className="px-6 md:px-12 py-24 md:py-32">
-        <div className="max-w-6xl mx-auto">
-          <SectionHeader title="Co mówią nasi goście" />
+      <section className="relative py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
+        <div className="relative z-10 max-w-7xl mx-auto px-8">
+          {/* Header */}
+          <motion.div
+            className="text-center mb-20"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+          >
+            <div className="inline-flex items-center gap-4 mb-8">
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+              <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Opinie naszych gości</span>
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+            </div>
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+              Co Mówią o Nas
+            </h2>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {REVIEWS.map((review) => (
-              <div
-                key={review.id}
-                className="rounded-2xl p-8 transition-transform duration-300 hover:-translate-y-1"
-                style={{
-                  backgroundColor: C.card,
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-                  border: "1px solid rgba(243,239,234,0.05)",
-                }}
+          {/* Bento grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            {/* Large card — spans 2 columns */}
+            <motion.div
+              className="md:col-span-2 rounded-3xl p-8 border shadow-2xl relative overflow-hidden group"
+              style={{ background: `linear-gradient(135deg, ${C.card}, #1a2820)`, borderColor: "rgba(182,138,58,0.2)" }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -5 }}
+            >
+              <motion.div
+                className="absolute -top-8 -right-8 opacity-10"
+                style={{ color: C.gold }}
+                animate={{ rotate: [0, 10, 0] }}
+                transition={{ duration: 3, repeat: Infinity }}
               >
-                <Quote size={28} style={{ color: C.gold, opacity: 0.4 }} className="mb-4" />
-                <div className="flex gap-1 mb-4">
-                  {[...Array(review.rating)].map((_, i) => (
-                    <Star key={i} size={16} style={{ fill: C.gold, color: C.gold }} />
-                  ))}
+                <Quote className="w-40 h-40" />
+              </motion.div>
+              <div className="relative z-10 space-y-6">
+                <div className="flex gap-1">
+                  {[...Array(REVIEWS[0].rating)].map((_, i) => <Star key={i} className="w-5 h-5" style={{ fill: C.gold, color: C.gold }} />)}
                 </div>
-                <p
-                  className="text-base leading-relaxed mb-6"
-                  style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.7)", lineHeight: 1.7 }}
-                >
-                  "{review.text}"
+                <p className="text-lg leading-relaxed" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.9)" }}>
+                  "{REVIEWS[0].text}"
                 </p>
-                <p className="text-sm" style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold }}>
-                  — {review.name}
-                </p>
-                <p className="text-xs mt-1" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.45)" }}>
-                  {review.role}
-                </p>
+                <div className="flex items-center gap-4 pt-4">
+                  <motion.div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0" style={{ border: `2px solid ${C.gold}` }} whileHover={{ scale: 1.1, rotate: 5 }}>
+                    <img src={REVIEWS[0].image} alt={REVIEWS[0].name} className="w-full h-full object-cover" />
+                  </motion.div>
+                  <div>
+                    <div className="font-medium" style={{ fontFamily: C.sans, color: C.cream }}>{REVIEWS[0].name}</div>
+                    <div className="text-sm" style={{ fontFamily: C.sans, color: C.gold }}>{REVIEWS[0].role}</div>
+                  </div>
+                </div>
               </div>
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: `linear-gradient(135deg, transparent, rgba(182,138,58,0.08))` }} />
+            </motion.div>
+
+            {/* Medium cards */}
+            {REVIEWS.slice(1, 3).map((review, index) => (
+              <motion.div
+                key={review.id}
+                className="rounded-3xl p-6 border shadow-xl group"
+                style={{ backgroundColor: C.card, borderColor: "rgba(182,138,58,0.2)" }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -5, scale: 1.02 }}
+              >
+                <div className="space-y-4">
+                  <div className="flex gap-1">
+                    {[...Array(review.rating)].map((_, i) => <Star key={i} className="w-4 h-4" style={{ fill: C.gold, color: C.gold }} />)}
+                  </div>
+                  <p className="text-sm leading-relaxed" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.8)" }}>
+                    "{review.text}"
+                  </p>
+                  <div className="flex items-center gap-3 pt-2">
+                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0" style={{ border: `2px solid ${C.gold}` }}>
+                      <img src={review.image} alt={review.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium" style={{ fontFamily: C.sans, color: C.cream }}>{review.name}</div>
+                      <div className="text-xs" style={{ fontFamily: C.sans, color: C.gold }}>{review.role}</div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+
+            {/* Small cards */}
+            {REVIEWS.slice(3).map((review, index) => (
+              <motion.div
+                key={review.id}
+                className="rounded-3xl p-6 border shadow-xl group"
+                style={{ backgroundColor: C.card, borderColor: "rgba(182,138,58,0.2)" }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 + index * 0.1 }}
+                whileHover={{ y: -5, scale: 1.02 }}
+              >
+                <div className="space-y-3">
+                  <div className="flex gap-1">
+                    {[...Array(review.rating)].map((_, i) => <Star key={i} className="w-3 h-3" style={{ fill: C.gold, color: C.gold }} />)}
+                  </div>
+                  <p className="text-xs leading-relaxed" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.8)" }}>
+                    "{review.text}"
+                  </p>
+                  <div className="flex items-center gap-2 pt-2">
+                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0" style={{ border: `2px solid ${C.gold}` }}>
+                      <img src={review.image} alt={review.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-medium" style={{ fontFamily: C.sans, color: C.cream }}>{review.name}</div>
+                      <div style={{ fontSize: 10, fontFamily: C.sans, color: C.gold }}>{review.role}</div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
-
-      <div className="h-px w-full" style={{ backgroundColor: "rgba(182,138,58,0.15)" }} />
 
       {/* ═══════════════════════ 10. HOW IT WORKS ═══════════════════════ */}
-      <section className="px-6 md:px-12 py-24 md:py-32">
-        <div className="max-w-5xl mx-auto">
-          <SectionHeader
-            title="Twój wieczór — uproszczony"
-            subtitle="Rezerwacja w La Maison Dorée jest prosta. Trzy kroki do niezapomnianego wieczoru."
-          />
+      <section className="py-16 md:py-20 relative overflow-hidden" style={{ borderTop: "1px solid rgba(182,138,58,0.1)", backgroundColor: C.dark }}>
+        <div className="max-w-5xl mx-auto px-6 lg:px-8">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center gap-4 mb-8">
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+              <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Rezerwacja</span>
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+            </div>
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+              Twój wieczór — uproszczony
+            </h2>
+            <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
+              Rezerwacja w La Maison Dorée nie wymaga wysiłku — wystarczy kilka prostych kroków.
+            </p>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {RESERVATION_STEPS.map((s, i) => (
-              <div key={i} className="text-center space-y-4 relative">
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
-                  style={{ backgroundColor: "rgba(182,138,58,0.12)", border: "1px solid rgba(182,138,58,0.25)" }}
-                >
-                  <span className="text-xl" style={{ fontFamily: C.sans, fontWeight: 600, color: C.gold }}>
-                    {s.step}
+          {/* Steps */}
+          <div className="space-y-10">
+            {[
+              { number: "1", title: "Zarezerwuj swój wieczór", description: "Wybierz termin przez system online lub zadzwoń do nas. Kilka kliknięć wystarczy, by zabezpieczyć stolik.", img: "https://images.unsplash.com/photo-1557047081-3f707e5b674f?w=800&q=80", align: "left" },
+              { number: "2", title: "Przygotujemy wszystko",   description: "Nasz zespół dopasuje stolik do charakteru wieczoru. Poinformuj nas o preferencjach — stworzymy idealne menu.", img: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80", align: "right" },
+              { number: "3", title: "Ciesz się wieczorem",     description: "Przyjdź i pozwól nam poprowadzić cały wieczór. Od powitania po imieniu aż po moment pożegnania.", img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80", align: "left" },
+            ].map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.12 }}
+                className={`grid md:grid-cols-2 gap-6 md:gap-10 items-center ${step.align === "right" ? "md:grid-flow-dense" : ""}`}
+              >
+                {/* Text */}
+                <div className={`${step.align === "right" ? "md:col-start-2" : ""} flex items-start gap-5`}>
+                  <span className="text-7xl md:text-8xl leading-none flex-shrink-0" style={{ fontFamily: C.serif, color: C.gold }}>
+                    {step.number}
                   </span>
+                  <div className="pt-3">
+                    <h3 className="text-2xl md:text-3xl mb-3 leading-tight" style={{ fontFamily: C.serif, color: C.cream }}>
+                      {step.title}
+                    </h3>
+                    <p className="text-sm md:text-base leading-relaxed" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.6)" }}>
+                      {step.description}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl" style={{ fontFamily: C.serif, fontWeight: 500, color: C.cream }}>
-                  {s.title}
-                </h3>
-                <p
-                  className="text-sm leading-relaxed"
-                  style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)", lineHeight: 1.7 }}
-                >
-                  {s.text}
-                </p>
-                {i < RESERVATION_STEPS.length - 1 && (
-                  <ArrowRight
-                    size={20}
-                    className="hidden md:block absolute -right-5 top-1/3 -translate-y-1/2"
-                    style={{ color: C.gold, opacity: 0.3 }}
-                  />
-                )}
-              </div>
+                {/* Image */}
+                <div className={`${step.align === "right" ? "md:col-start-1 md:row-start-1" : ""} relative overflow-hidden rounded-2xl shadow-2xl aspect-[4/3]`}>
+                  <img src={step.img} alt={step.title} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.2), transparent, rgba(0,0,0,0.3))" }} />
+                </div>
+              </motion.div>
             ))}
           </div>
 
-          <div className="text-center mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <GoldButton onClick={() => navigate("/reserve")}>ZAREZERWUJ STOLIK</GoldButton>
-            <GoldButton variant="outline" onClick={() => window.location.href = "tel:+48223456789"}>
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mt-14 flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
+            <motion.button
+              onClick={() => navigate("/reserve")}
+              className="px-8 py-3 rounded-xl border border-[#B68A3A] bg-[#B68A3A] text-[#0a1612] hover:bg-transparent hover:text-[#B68A3A] transition-colors tracking-widest text-sm"
+              style={{ fontFamily: C.sans, fontWeight: 500 }}
+              whileHover={{ scale: 1.05, rotate: -1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              ZAREZERWUJ STOLIK
+            </motion.button>
+            <motion.button
+              onClick={() => window.location.href = "tel:+48223456789"}
+              className="px-8 py-3 rounded-xl border border-[#B68A3A] bg-transparent text-[#B68A3A] hover:bg-[#B68A3A] hover:text-[#0a1612] transition-colors tracking-widest text-sm"
+              style={{ fontFamily: C.sans, fontWeight: 500 }}
+              whileHover={{ scale: 1.05, rotate: -1 }}
+              whileTap={{ scale: 0.95 }}
+            >
               ZADZWOŃ +48 22 345 67 89
-            </GoldButton>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
       </section>
 
-      <div className="h-px w-full" style={{ backgroundColor: "rgba(182,138,58,0.15)" }} />
-
       {/* ═══════════════════════ 11. PRIVATE EVENTS TEASER ═══════════════════════ */}
-      <section className="px-6 md:px-12 py-24 md:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 z-0">
+      <section className="relative overflow-hidden" style={{ minHeight: "70vh", borderTop: "1px solid rgba(182,138,58,0.1)" }}>
+        {/* Background */}
+        <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1400&q=80"
+            src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1600&q=80"
             alt=""
             className="w-full h-full object-cover"
-            style={{ filter: "brightness(0.2)" }}
           />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(14,23,20,0.9), rgba(14,23,20,0.7))" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(14,23,20,0.5) 0%, rgba(14,23,20,0.75) 50%, rgba(14,23,20,0.95) 100%)" }} />
         </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <p
-              className="text-sm uppercase tracking-[0.2em]"
-              style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold }}
-            >
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-between h-full min-h-[70vh] px-6 md:px-12 py-20 max-w-6xl mx-auto">
+          {/* Top text */}
+          <motion.div
+            className="max-w-2xl"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+          >
+            <span className="inline-block text-sm uppercase tracking-[0.3em] mb-6" style={{ fontFamily: C.sans, color: C.gold }}>
               Prywatne wydarzenia
-            </p>
-            <h2
-              className="text-4xl md:text-5xl leading-tight"
-              style={{ fontFamily: C.serif, fontWeight: 300, color: C.cream }}
-            >
-              Wyłącznie dla Ciebie
+            </span>
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-tight mb-6" style={{ fontFamily: C.serif, color: C.cream }}>
+              Wyłącznie<br />dla Ciebie
             </h2>
-            <p
-              className="text-base leading-relaxed"
-              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.7)", lineHeight: 1.8 }}
-            >
-              Od kameralnych kolacji biznesowych po pełne wynajem całego lokalu,
-              La Maison Dorée oferuje bespoke private dining z dedykowanym Menadżerem
-              Wydarzeń, menu tworzonymi przez szefa kuchni i przestrzeniami dla
-              nawet 80 gości.
+            <p className="text-base leading-relaxed mb-8 max-w-lg" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.75)", lineHeight: 1.8 }}>
+              Od kameralnych kolacji biznesowych po wynajem całego lokalu — oferujemy bespoke private dining z dedykowanym Menadżerem Wydarzeń dla nawet 80 gości.
             </p>
-            <div className="flex flex-wrap gap-4 pt-2">
-              <GoldButton onClick={() => navigate("/private-events")}>ODKRYJ WYDARZENIA PRYWATNE</GoldButton>
-              <GoldButton variant="outline" onClick={() => window.location.href = "tel:+48223456789"}>
+            <div className="flex flex-wrap gap-4">
+              <motion.button
+                onClick={() => navigate("/private-events")}
+                className="px-8 py-3 rounded-xl border border-[#B68A3A] bg-[#B68A3A] text-[#0a1612] hover:bg-transparent hover:text-[#B68A3A] transition-colors tracking-widest text-sm"
+                style={{ fontFamily: C.sans, fontWeight: 500 }}
+                whileHover={{ scale: 1.05, rotate: -1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                ODKRYJ WYDARZENIA
+              </motion.button>
+              <motion.button
+                onClick={() => window.location.href = "tel:+48223456789"}
+                className="px-8 py-3 rounded-xl border border-[#B68A3A] bg-transparent text-[#B68A3A] hover:bg-[#B68A3A] hover:text-[#0a1612] transition-colors tracking-widest text-sm"
+                style={{ fontFamily: C.sans, fontWeight: 500 }}
+                whileHover={{ scale: 1.05, rotate: -1 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 ZADZWOŃ DO NAS
-              </GoldButton>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="hidden md:grid grid-cols-2 gap-4">
+          {/* Bottom stats strip */}
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             {[
-              { label: "Salon prywatny", cap: "Do 20" },
-              { label: "Wynajem całości", cap: "Do 80" },
-              { label: "AV i technologia", cap: "W cenie" },
-              { label: "Menadżer Wydarzeń", cap: "Dedykowany" },
+              { cap: "Do 20", label: "Salon prywatny" },
+              { cap: "Do 80", label: "Wynajem całości" },
+              { cap: "W cenie", label: "AV i technologia" },
+              { cap: "Dedykowany", label: "Menadżer Wydarzeń" },
             ].map((item, i) => (
               <div
                 key={i}
                 className="rounded-xl p-5 text-center"
-                style={{
-                  backgroundColor: "rgba(24,37,34,0.7)",
-                  border: "1px solid rgba(182,138,58,0.15)",
-                  backdropFilter: "blur(8px)",
-                }}
+                style={{ backgroundColor: "rgba(14,23,20,0.7)", border: "1px solid rgba(182,138,58,0.2)", backdropFilter: "blur(12px)" }}
               >
-                <p className="text-lg" style={{ fontFamily: C.sans, fontWeight: 600, color: C.gold }}>
-                  {item.cap}
-                </p>
-                <p className="text-xs uppercase tracking-wider mt-1" style={{ fontFamily: C.sans, fontWeight: 400, color: "rgba(243,239,234,0.5)" }}>
-                  {item.label}
-                </p>
+                <p className="text-xl font-light mb-1" style={{ fontFamily: C.serif, color: C.gold }}>{item.cap}</p>
+                <p className="text-xs uppercase tracking-wider" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.5)" }}>{item.label}</p>
               </div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ═══════════════════════ 12. VISIT US ═══════════════════════ */}
-      <div className="h-px w-full" style={{ backgroundColor: "rgba(182,138,58,0.15)" }} />
-
       <section
         id="contact"
         className="px-6 md:px-12 py-24 md:py-32"
+        style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.15)" }}
       >
         <div className="max-w-6xl mx-auto">
-          <SectionHeader title="Odwiedź nas" />
+          <SectionHeader title="Odwiedź nas" label="Lokalizacja" />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Left — Contact Info */}
@@ -1117,194 +1820,116 @@ export function LandingPage() {
       </section>
 
       {/* ═══════════════════════ 13. NEWSLETTER ═══════════════════════ */}
-      <section
-        className="px-6 md:px-12 py-16 md:py-20"
-        style={{ borderTop: "1px solid rgba(182,138,58,0.1)" }}
-      >
-        <div className="max-w-2xl mx-auto text-center space-y-6">
-          <Mail size={32} style={{ color: C.gold, opacity: 0.7 }} className="mx-auto" />
-          <h3
-            className="text-3xl"
-            style={{ fontFamily: C.serif, fontWeight: 300, color: C.cream }}
+      <section className="relative py-24 md:py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
+        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="space-y-6"
           >
-            Pozostań w kontakcie
-          </h3>
-          <p
-            className="text-sm leading-relaxed"
-            style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}
-          >
-            Otrzymuj ogłoszenia o sezonowych menu, zaproszenia na ekskluzywne wydarzenia
-            i specjalne oferty — wysyłane dyskretnie, nie częściej niż dwa razy w miesiącu.
-          </p>
-
-          {emailSent ? (
-            <p className="text-sm py-4" style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold }}>
-              Dziękujemy — jesteś na liście.
+            <div className="inline-flex items-center gap-4 mb-8">
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+              <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Newsletter</span>
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+            </div>
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+              Pozostań w kontakcie
+            </h2>
+            <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
+              Ogłoszenia o sezonowych menu, zaproszenia na ekskluzywne wydarzenia i specjalne oferty —
+              wysyłane dyskretnie, nie częściej niż dwa razy w miesiącu.
             </p>
-          ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (email.includes("@")) setEmailSent(true);
-              }}
-              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-            >
-              <input
-                type="email"
-                required
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 px-5 py-3 rounded-lg text-sm outline-none transition-all duration-200"
-                style={{
-                  fontFamily: C.sans,
-                  fontWeight: 300,
-                  backgroundColor: "rgba(243,239,234,0.05)",
-                  color: C.cream,
-                  border: "1px solid rgba(243,239,234,0.15)",
-                }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(182,138,58,0.5)")}
-                onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(243,239,234,0.15)")}
-              />
-              <button
-                type="submit"
-                className="px-6 py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
-                style={{
-                  fontFamily: C.sans,
-                  fontWeight: 500,
-                  fontSize: "14px",
-                  backgroundColor: C.gold,
-                  color: "#1E1A16",
-                }}
-              >
-                <Send size={14} />
-                SUBSKRYBUJ
-              </button>
-            </form>
-          )}
 
-          <p className="text-xs" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.35)" }}>
-            Szanujemy Twoją prywatność. Możesz zrezygnować w każdej chwili.
-          </p>
+            {emailSent ? (
+              <motion.p
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="py-4 text-base"
+                style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold }}
+              >
+                Dziękujemy — jesteś na liście.
+              </motion.p>
+            ) : (
+              <form
+                onSubmit={(e) => { e.preventDefault(); if (email.includes("@")) setEmailSent(true); }}
+                className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mt-8"
+              >
+                <div className="relative flex-1">
+                  <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: C.gold, opacity: 0.6 }} />
+                  <input
+                    type="email"
+                    required
+                    placeholder="twój@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-11 pr-5 py-4 rounded-2xl text-sm outline-none transition-all duration-200"
+                    style={{
+                      fontFamily: C.sans,
+                      backgroundColor: "rgba(243,239,234,0.06)",
+                      color: C.cream,
+                      border: "1px solid rgba(182,138,58,0.25)",
+                    }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = C.gold)}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(182,138,58,0.25)")}
+                  />
+                </div>
+                <motion.button
+                  type="submit"
+                  className="px-7 py-4 rounded-2xl flex items-center justify-center gap-2 text-sm font-medium"
+                  style={{ fontFamily: C.sans, backgroundColor: C.gold, color: "#0a1612", letterSpacing: "0.08em" }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <Send size={14} />
+                  SUBSKRYBUJ
+                </motion.button>
+              </form>
+            )}
+
+            <p className="text-xs" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.3)" }}>
+              Szanujemy Twoją prywatność. Możesz zrezygnować w każdej chwili.
+            </p>
+          </motion.div>
         </div>
       </section>
 
       {/* ═══════════════════════ 15. FOOTER ═══════════════════════ */}
-      <footer
-        className="px-6 md:px-12 py-16"
-        style={{ borderTop: "1px solid rgba(182,138,58,0.15)", backgroundColor: "rgba(24,37,34,0.5)" }}
-      >
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            {/* Brand */}
-            <div className="md:col-span-1">
-              <h3
-                className="text-3xl mb-4"
-                style={{ fontFamily: C.serif, fontWeight: 300, letterSpacing: "0.08em", color: C.cream }}
-              >
-                La Maison Dorée
-              </h3>
-              <p
-                className="text-sm leading-relaxed mb-4"
-                style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)", lineHeight: 1.7 }}
-              >
-                Współczesna kuchnia francuska w sercu Warszawy. Celebracja
-                wyrafinowanych smaków i rzemiosła artystycznego od 2018 roku.
-              </p>
-            </div>
+      <footer className="relative py-16" style={{ backgroundColor: C.dark, borderTop: `1px solid rgba(182,138,58,0.2)` }}>
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+            {/* Logo */}
+            <motion.div
+              className="text-4xl font-light tracking-wide"
+              style={{ fontFamily: C.serif, color: C.cream }}
+              whileHover={{ scale: 1.05, rotate: -2 }}
+            >
+              La Maison Dorée
+            </motion.div>
 
-            {/* Navigation */}
-            <div>
-              <h4
-                className="text-sm uppercase tracking-wider mb-4"
-                style={{ fontFamily: C.sans, fontWeight: 500, letterSpacing: "0.1em", color: C.gold }}
-              >
-                Nawigacja
-              </h4>
-              <ul className="space-y-2">
-                {[
-                  { label: "Strona główna", action: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
-                  { label: "Menu", action: () => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" }) },
-                  { label: "Galeria", action: () => document.getElementById("gallery")?.scrollIntoView({ behavior: "smooth" }) },
-                  { label: "Rezerwacje", action: () => { navigate("/reserve"); window.scrollTo(0, 0); } },
-                  { label: "Prywatne wydarzenia", action: () => { navigate("/private-events"); window.scrollTo(0, 0); } },
-                ].map((link) => (
-                  <li key={link.label}>
-                    <button
-                      onClick={link.action}
-                      className="text-sm transition-colors duration-200 hover:text-[#B68A3A]"
-                      style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.7)" }}
-                    >
-                      {link.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Hours */}
-            <div>
-              <h4
-                className="text-sm uppercase tracking-wider mb-4"
-                style={{ fontFamily: C.sans, fontWeight: 500, letterSpacing: "0.1em", color: C.gold }}
-              >
-                Godziny otwarcia
-              </h4>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.7)", lineHeight: 1.8 }}
-              >
-                Wtorek – Sobota<br />
-                18:00 – 22:30<br /><br />
-                Niedziela i poniedziałek<br />
-                Nieczynne
-              </p>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h4
-                className="text-sm uppercase tracking-wider mb-4"
-                style={{ fontFamily: C.sans, fontWeight: 500, letterSpacing: "0.1em", color: C.gold }}
-              >
-                Kontakt
-              </h4>
-              <ul className="space-y-2">
-                <li>
-                  <p className="text-sm" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.7)", lineHeight: 1.6 }}>
-                    ul. Nowy Świat 42<br />00-363 Warszawa
-                  </p>
-                </li>
-                <li>
-                  <a href="tel:+48223456789" className="text-sm hover:text-[#B68A3A] transition-colors duration-200" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.7)" }}>
-                    +48 22 345 67 89
-                  </a>
-                </li>
-                <li>
-                  <a href="mailto:info@lamaisondoree.pl" className="text-sm hover:text-[#B68A3A] transition-colors duration-200" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.7)" }}>
-                    info@lamaisondoree.pl
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="h-px w-full mb-8 bg-[rgba(182,138,58,0.2)]" />
-
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.5)" }}>
+            {/* Copyright */}
+            <p className="text-sm tracking-widest" style={{ fontFamily: C.sans, color: "rgba(197,191,181,1)" }}>
               © {new Date().getFullYear()} La Maison Dorée. Wszelkie prawa zastrzeżone.
             </p>
-            <div className="flex gap-6">
-              {["Polityka prywatności", "Warunki usługi", "Pliki cookie"].map((link) => (
-                <a
-                  key={link}
-                  href="#"
-                  className="text-xs transition-colors duration-200 hover:text-[#B68A3A]"
-                  style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.5)" }}
+
+            {/* Social Links */}
+            <div className="flex gap-4">
+              {[
+                { icon: Facebook, label: "Facebook" },
+                { icon: Instagram, label: "Instagram" },
+                { icon: Twitter, label: "Twitter" },
+              ].map(({ icon: Icon, label }, index) => (
+                <motion.button
+                  key={index}
+                  className="w-12 h-12 flex items-center justify-center rounded-lg transition-all"
+                  style={{ border: `1px solid ${C.gold}`, color: C.gold, backgroundColor: "transparent" }}
+                  whileHover={{ scale: 1.2, rotate: 360, backgroundColor: C.gold, color: "#0a1612" }}
+                  transition={{ duration: 0.3 }}
+                  aria-label={label}
                 >
-                  {link}
-                </a>
+                  <Icon className="w-5 h-5" />
+                </motion.button>
               ))}
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { Navigation } from "../components/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
 import { cn } from "../components/ui/utils";
@@ -373,7 +373,11 @@ type DietFilter = "vegan" | "vegetarian";
 
 export function MenuPage() {
   const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState<MenuCategory | "Wszystkie">("Wszystkie");
+  const location = useLocation();
+  const [activeCategory, setActiveCategory] = useState<MenuCategory | "Wszystkie">(() => {
+    const cat = (location.state as { category?: string } | null)?.category;
+    return (MENU_CATEGORIES.includes(cat as MenuCategory) ? cat : "Wszystkie") as MenuCategory | "Wszystkie";
+  });
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [dietFilter, setDietFilter] = useState<DietFilter[]>([]);

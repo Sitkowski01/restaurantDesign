@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { Menu, X, Phone, Mail, MapPin, Clock } from 'lucide-react';
+import { motion } from 'motion/react';
 
 export function Navigation() {
   const navigate = useNavigate();
@@ -80,9 +81,9 @@ export function Navigation() {
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="flex items-center justify-between h-20 md:h-24">
             {/* Logo / Restaurant Name */}
-            <button
+            <motion.button
               onClick={handleLogoClick}
-              className="transition-all duration-200 hover:opacity-80"
+              whileHover={{ scale: 1.05, rotate: -1 }}
             >
               <h1
                 className="text-2xl md:text-3xl tracking-wide"
@@ -95,74 +96,39 @@ export function Navigation() {
               >
                 La Maison Dorée
               </h1>
-            </button>
+            </motion.button>
 
             {/* Desktop Navigation Links */}
             <div className="hidden md:flex items-center gap-8 lg:gap-12">
-              <button
-                onClick={handlePrivateEvents}
-                className="text-sm uppercase tracking-wider transition-all duration-200"
-                style={navLinkStyle}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#B68A3A'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(243, 239, 234, 0.7)'; }}
-              >
-                Wydarzenia
-              </button>
-
-              <button
-                onClick={() => scrollToSection('menu')}
-                className="text-sm uppercase tracking-wider transition-all duration-200"
-                style={navLinkStyle}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#B68A3A'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(243, 239, 234, 0.7)'; }}
-              >
-                Menu
-              </button>
-
-              <button
-                onClick={() => scrollToSection('gallery')}
-                className="text-sm uppercase tracking-wider transition-all duration-200"
-                style={navLinkStyle}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#B68A3A'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(243, 239, 234, 0.7)'; }}
-              >
-                Galeria
-              </button>
-
-              <button
-                onClick={() => scrollToSection('contact')}
-                className="text-sm uppercase tracking-wider transition-all duration-200"
-                style={navLinkStyle}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#B68A3A'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(243, 239, 234, 0.7)'; }}
-              >
-                Kontakt
-              </button>
+              {[
+                { label: 'Wydarzenia', action: handlePrivateEvents },
+                { label: 'Menu', action: () => scrollToSection('menu') },
+                { label: 'Galeria', action: () => scrollToSection('gallery') },
+                { label: 'Kontakt', action: () => scrollToSection('contact') },
+              ].map(({ label, action }) => (
+                <motion.button
+                  key={label}
+                  onClick={action}
+                  className="text-sm uppercase tracking-wider relative group"
+                  style={navLinkStyle}
+                  whileHover={{ y: -3, color: '#B68A3A' }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {label}
+                  <span className="absolute -bottom-1.5 left-0 right-0 h-px bg-gradient-to-r from-[#B68A3A] to-[#c9a96e] scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left" />
+                </motion.button>
+              ))}
 
               {/* Reserve CTA */}
-              <button
+              <motion.button
                 onClick={handleReserve}
-                className="px-6 py-2.5 rounded-lg transition-all duration-200"
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontWeight: 500,
-                  letterSpacing: '0.08em',
-                  fontSize: '13px',
-                  backgroundColor: '#B68A3A',
-                  color: '#1E1A16',
-                  boxShadow: '0 4px 16px rgba(182, 138, 58, 0.25)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(182, 138, 58, 0.35)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(182, 138, 58, 0.25)';
-                }}
+                className="px-8 py-3 rounded-xl border border-[#B68A3A] bg-[#B68A3A] text-[#0a1612] hover:bg-transparent hover:text-[#B68A3A] transition-colors tracking-widest text-sm"
+                style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}
+                whileHover={{ scale: 1.05, rotate: -1 }}
+                whileTap={{ scale: 0.95 }}
               >
                 REZERWUJ
-              </button>
+              </motion.button>
             </div>
 
             {/* Mobile Hamburger Button */}

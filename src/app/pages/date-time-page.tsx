@@ -183,7 +183,7 @@ export function DateTimePage() {
     <div
       className="min-h-screen px-6 md:px-12 py-8 md:py-12"
       style={{
-        background: "radial-gradient(ellipse at center, #1a2820 0%, #0E1714 100%)",
+        backgroundColor: "#0E1714",
         backgroundAttachment: "fixed",
       }}
     >

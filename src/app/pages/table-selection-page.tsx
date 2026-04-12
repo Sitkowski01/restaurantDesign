@@ -131,7 +131,7 @@ export function TableSelectionPage() {
   return (
     <div
       className="min-h-screen px-4 md:px-12 py-6 md:py-8"
-      style={{ background: "radial-gradient(ellipse at center, #1a2820 0%, #0E1714 100%)", backgroundAttachment: "fixed" }}
+      style={{ backgroundColor: "#0E1714" }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
