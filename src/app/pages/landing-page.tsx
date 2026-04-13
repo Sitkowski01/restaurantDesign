@@ -223,7 +223,7 @@ function SectionHeader({ title, subtitle, label }: { title: string; subtitle?: s
         {label && <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>{label}</span>}
         <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
       </div>
-      <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+      <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
         {title}
       </h2>
       {subtitle && (
@@ -337,10 +337,10 @@ function GallerySection({ onImageClick }: { onImageClick: (idx: number) => void 
   return (
     <section ref={containerRef} id="gallery" className="relative py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Header */}
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-12 md:mb-20"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -351,18 +351,18 @@ function GallerySection({ onImageClick }: { onImageClick: (idx: number) => void 
             <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Fotografia</span>
             <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
           </div>
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
             Galeria Smaków
           </h2>
-          <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
+          <p className="text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
             Odkryj wizualną podróż przez nasze kulinarne arcydzieła
           </p>
         </motion.div>
 
-        {/* Figma-layout grid */}
+        {/* Figma-layout grid — responsive */}
         <div
-          className="grid grid-cols-4 gap-4"
-          style={{ gridAutoRows: "300px" }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"
+          style={{ gridAutoRows: "clamp(160px, 25vw, 300px)" }}
         >
           {/* 0 — duże lewe, 2×2 */}
           <GalleryTile image={grid[0]} idx={0} className="col-span-2 row-span-2" onImageClick={onImageClick} />
@@ -391,21 +391,21 @@ function ExperienceSection() {
   const ActiveIcon = active.icon;
 
   return (
-    <section className="py-32 relative overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
+    <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
       {/* Decorative corner lines */}
       <div className="absolute top-12 left-12 w-24 h-24 border-t border-l hidden lg:block" style={{ borderColor: `${C.gold}1A` }} />
       <div className="absolute bottom-12 right-12 w-24 h-24 border-b border-r hidden lg:block" style={{ borderColor: `${C.gold}1A` }} />
 
-      <div className="max-w-6xl mx-auto px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-24"
+          className="text-center mb-12 sm:mb-16 lg:mb-24"
         >
-          <div className="inline-flex items-center gap-4 mb-8">
+          <div className="inline-flex items-center gap-4 mb-6 sm:mb-8">
             <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>
               Cztery filary wieczoru
@@ -413,22 +413,56 @@ function ExperienceSection() {
             <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
           </div>
 
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
             Doświadczenie, które
             <br />
             <span className="italic">buduje się z detali</span>
           </h2>
         </motion.div>
 
-        {/* Tabs */}
+        {/* Tabs — desktop: inline row, mobile: 2x2 grid */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="flex justify-center mb-20"
+          className="mb-12 sm:mb-16 lg:mb-20"
         >
-          <div className="inline-flex" style={{ border: `1px solid ${C.gold}26` }}>
+          {/* Desktop tabs */}
+          <div className="hidden sm:flex justify-center">
+            <div className="inline-flex" style={{ border: `1px solid ${C.gold}26` }}>
+              {EXPERIENCE_PILLARS.map((p) => {
+                const Icon = p.icon;
+                const isActive = p.id === activeId;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => setActiveId(p.id)}
+                    className="relative flex items-center gap-3 px-6 py-4 text-xs tracking-[0.15em] uppercase transition-all duration-500"
+                    style={{
+                      fontFamily: C.sans,
+                      backgroundColor: isActive ? `${C.gold}1A` : "transparent",
+                      color: isActive ? C.gold : "rgba(243,239,234,0.35)",
+                    }}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{p.tag}</span>
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeTab"
+                        className="absolute bottom-0 left-0 right-0 h-px"
+                        style={{ backgroundColor: C.gold }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Mobile tabs — 2x2 grid */}
+          <div className="grid grid-cols-2 gap-2 sm:hidden">
             {EXPERIENCE_PILLARS.map((p) => {
               const Icon = p.icon;
               const isActive = p.id === activeId;
@@ -436,23 +470,16 @@ function ExperienceSection() {
                 <button
                   key={p.id}
                   onClick={() => setActiveId(p.id)}
-                  className="relative flex items-center gap-3 px-6 py-4 text-xs tracking-[0.15em] uppercase transition-all duration-500"
+                  className="flex items-center gap-2 px-3 py-3 text-[11px] tracking-[0.1em] uppercase transition-all duration-300 rounded-lg"
                   style={{
                     fontFamily: C.sans,
                     backgroundColor: isActive ? `${C.gold}1A` : "transparent",
-                    color: isActive ? C.gold : "rgba(243,239,234,0.35)",
+                    color: isActive ? C.gold : "rgba(243,239,234,0.4)",
+                    border: isActive ? `1px solid ${C.gold}40` : "1px solid rgba(182,138,58,0.12)",
                   }}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span className="hidden sm:inline">{p.tag}</span>
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute bottom-0 left-0 right-0 h-px"
-                      style={{ backgroundColor: C.gold }}
-                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    />
-                  )}
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <span>{p.tag}</span>
                 </button>
               );
             })}
@@ -460,7 +487,7 @@ function ExperienceSection() {
         </motion.div>
 
         {/* Content area */}
-        <div className="relative" style={{ minHeight: '320px' }}>
+        <div className="relative" style={{ minHeight: '280px' }}>
           <AnimatePresence mode="popLayout">
             <motion.div
               key={activeId}
@@ -469,11 +496,44 @@ function ExperienceSection() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             >
-              <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+              {/* Mobile layout: icon + text stacked */}
+              <div className="flex flex-col items-center text-center lg:hidden">
+                <div className="relative mb-6">
+                  <span className="text-[80px] font-light leading-none select-none block" style={{ fontFamily: C.serif, color: `${C.gold}12` }}>
+                    {active.number}
+                  </span>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ border: `1px solid ${C.gold}40` }}>
+                      <ActiveIcon className="w-5 h-5" style={{ color: C.gold }} />
+                    </div>
+                  </div>
+                </div>
+
+                <span className="text-xs tracking-[0.3em] uppercase mb-3 block" style={{ color: C.gold, fontFamily: C.sans }}>
+                  {active.tag}
+                </span>
+
+                <h3 className="text-2xl font-light mb-4 leading-tight" style={{ fontFamily: C.serif, color: C.cream }}>
+                  {active.title}
+                </h3>
+
+                <div className="w-12 h-px mb-5 mx-auto" style={{ backgroundColor: `${C.gold}4D` }} />
+
+                <p className="leading-relaxed mb-4 text-sm" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.65)" }}>
+                  {active.description}
+                </p>
+
+                <p className="leading-relaxed text-xs" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.4)" }}>
+                  {active.detail}
+                </p>
+              </div>
+
+              {/* Desktop layout: number left + text right */}
+              <div className="hidden lg:grid lg:grid-cols-12 gap-16 items-center">
                 {/* Left — large number + decorative SVG */}
                 <div className="lg:col-span-5 flex flex-col items-center lg:items-end">
                   <div className="relative">
-                    <span className="text-[180px] md:text-[240px] font-light leading-none select-none block" style={{ fontFamily: C.serif, color: `${C.gold}12` }}>
+                    <span className="text-[240px] font-light leading-none select-none block" style={{ fontFamily: C.serif, color: `${C.gold}12` }}>
                       {active.number}
                     </span>
 
@@ -508,7 +568,7 @@ function ExperienceSection() {
                       {active.tag}
                     </span>
 
-                    <h3 className="text-3xl md:text-4xl font-light mb-6 leading-tight" style={{ fontFamily: C.serif, color: C.cream }}>
+                    <h3 className="text-4xl font-light mb-6 leading-tight" style={{ fontFamily: C.serif, color: C.cream }}>
                       {active.title}
                     </h3>
 
@@ -528,8 +588,8 @@ function ExperienceSection() {
           </AnimatePresence>
         </div>
 
-        {/* Bottom — progress dots + quote + CTA */}
-        <div className="mt-24 space-y-16">
+        {/* Bottom — progress dots */}
+        <div className="mt-12 sm:mt-16 lg:mt-24">
           <div className="flex justify-center gap-3">
             {EXPERIENCE_PILLARS.map((p) => (
               <button key={p.id} onClick={() => setActiveId(p.id)} className="group flex flex-col items-center gap-2">
@@ -549,7 +609,6 @@ function ExperienceSection() {
               </button>
             ))}
           </div>
-
         </div>
       </div>
     </section>
@@ -637,16 +696,16 @@ export function LandingPage() {
           style={{ y: heroY1 }}
         >
           <h1
-            className="text-[20rem] font-light text-[#d4a574] whitespace-nowrap"
+            className="text-[6rem] sm:text-[10rem] md:text-[14rem] lg:text-[20rem] font-light text-[#d4a574] whitespace-nowrap"
             style={{ fontFamily: C.serif }}
           >
             DORÉE
           </h1>
         </motion.div>
 
-        {/* Floating decorative circle */}
+        {/* Floating decorative circle — hidden on mobile */}
         <motion.div
-          className="absolute top-24 right-[20.75rem] w-28 h-28 border-4 border-[#b68a3a] rounded-full opacity-20"
+          className="absolute top-24 right-[20.75rem] w-28 h-28 border-4 border-[#b68a3a] rounded-full opacity-20 hidden md:block"
           animate={{ rotate: 360, scale: [1, 1.2, 1] }}
           transition={{
             rotate: { duration: 20, repeat: Infinity, ease: "linear" },
@@ -654,29 +713,29 @@ export function LandingPage() {
           }}
         />
 
-        {/* Floating decorative diamond */}
-        <motion.div className="absolute bottom-40 left-[20.75rem] w-40 h-40" style={{ rotate: heroRotate }}>
+        {/* Floating decorative diamond — hidden on mobile */}
+        <motion.div className="absolute bottom-40 left-[20.75rem] w-40 h-40 hidden md:block" style={{ rotate: heroRotate }}>
           <div className="w-full h-full border-2 border-[#d4a574] opacity-10" style={{ transform: "rotate(45deg)" }} />
         </motion.div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-8 py-24 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 md:px-8 pt-24 pb-20 md:py-24 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
             {/* Left — text */}
             <motion.div
               initial={{ opacity: 0, x: -80 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="space-y-8"
+              className="space-y-6 sm:space-y-8"
             >
               {/* Badge */}
               <div
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-full"
+                className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 rounded-full"
                 style={{ backgroundColor: "rgba(182,138,58,0.15)", border: "1px solid #b68a3a" }}
               >
-                <Sparkles className="w-5 h-5" style={{ color: C.gold }} />
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: C.gold }} />
                 <span
-                  className="text-sm font-medium tracking-wider uppercase"
+                  className="text-xs sm:text-sm font-medium tracking-wider uppercase"
                   style={{ fontFamily: C.sans, color: C.gold }}
                 >
                   Smak Który Zapada w Pamięć
@@ -684,9 +743,9 @@ export function LandingPage() {
               </div>
 
               {/* Title */}
-              <div className="space-y-2">
+              <div className="space-y-3 sm:space-y-4">
                 <motion.h1
-                  className="text-6xl md:text-7xl lg:text-8xl font-light leading-[0.95]"
+                  className="text-[2.5rem] sm:text-5xl md:text-7xl lg:text-8xl font-light leading-[0.95]"
                   style={{ fontFamily: C.serif, color: C.cream }}
                 >
                   <motion.span
@@ -712,7 +771,7 @@ export function LandingPage() {
                 </motion.h1>
 
                 <motion.p
-                  className="text-lg max-w-lg leading-relaxed pl-4"
+                  className="text-sm sm:text-base md:text-lg max-w-lg leading-relaxed pl-4"
                   style={{
                     fontFamily: C.sans,
                     fontWeight: 300,
@@ -728,9 +787,9 @@ export function LandingPage() {
               </div>
 
               {/* Buttons */}
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-3 sm:gap-4">
                 <motion.button
-                  className="group relative px-8 py-4 font-semibold rounded-full flex items-center gap-3 overflow-hidden"
+                  className="group relative px-6 sm:px-8 py-3 sm:py-4 font-semibold rounded-full flex items-center gap-3 overflow-hidden text-sm sm:text-base"
                   style={{
                     backgroundColor: C.gold,
                     color: "#0a1612",
@@ -757,7 +816,7 @@ export function LandingPage() {
                 </motion.button>
 
                 <motion.button
-                  className="px-8 py-4 font-semibold rounded-full transition-all"
+                  className="px-6 sm:px-8 py-3 sm:py-4 font-semibold rounded-full transition-all text-sm sm:text-base"
                   style={{
                     border: `2px solid ${C.gold}`,
                     color: C.gold,
@@ -774,7 +833,7 @@ export function LandingPage() {
 
               {/* Stats */}
               <motion.div
-                className="flex gap-10 pt-6"
+                className="flex gap-6 sm:gap-10 pt-4 sm:pt-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
@@ -786,13 +845,13 @@ export function LandingPage() {
                 ].map((stat, i) => (
                   <div key={i} className="space-y-1">
                     <div
-                      className="text-4xl font-light"
+                      className="text-2xl sm:text-4xl font-light"
                       style={{ fontFamily: C.serif, color: C.gold }}
                     >
                       {stat.value}
                     </div>
                     <div
-                      className="text-xs tracking-wider uppercase"
+                      className="text-[10px] sm:text-xs tracking-wider uppercase"
                       style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.6)" }}
                     >
                       {stat.label}
@@ -802,12 +861,12 @@ export function LandingPage() {
               </motion.div>
             </motion.div>
 
-            {/* Right — floating image */}
+            {/* Right — floating image (desktop only) */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
+              className="relative hidden lg:block"
               style={{ y: heroY2 }}
             >
               <motion.div
@@ -890,9 +949,9 @@ export function LandingPage() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* Scroll indicator — hidden on mobile to avoid overlap */}
         <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2"
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
@@ -924,7 +983,7 @@ export function LandingPage() {
             <img
               src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=800&q=80"
               alt="Inside La Maison Dorée"
-              className="w-full h-[480px] object-cover"
+              className="w-full h-[220px] sm:h-[240px] lg:h-[480px] object-cover"
               loading="lazy"
               style={{ filter: "brightness(0.85)" }}
             />
@@ -938,7 +997,7 @@ export function LandingPage() {
               <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             </div>
             <h2
-              className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]"
               style={{ fontFamily: C.serif, color: C.cream }}
             >
               Gdzie tradycja spotyka śmiąłość
@@ -999,7 +1058,7 @@ export function LandingPage() {
               <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             </div>
             <h2
-              className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]"
               style={{ fontFamily: C.serif, color: C.cream }}
             >
               Julien Moreau
@@ -1053,7 +1112,7 @@ export function LandingPage() {
             <img
               src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800&q=80"
               alt="Chef Julien Moreau in the kitchen"
-              className="w-full h-[520px] object-cover"
+              className="w-full h-[220px] sm:h-[240px] lg:h-[520px] object-cover"
               loading="lazy"
               style={{ filter: "brightness(0.85)" }}
             />
@@ -1086,7 +1145,7 @@ export function LandingPage() {
               </span>
               <div className="h-px w-8" style={{ backgroundColor: "rgba(182,138,58,0.5)" }} />
             </div>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl leading-[0.95] mb-6" style={{ fontFamily: C.serif, color: C.cream }}>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl leading-[0.95] mb-6" style={{ fontFamily: C.serif, color: C.cream }}>
               Menu<br />
               <span className="italic">Degustacyjne</span>
             </h2>
@@ -1182,7 +1241,7 @@ export function LandingPage() {
                 style={{ border: `1px solid ${C.gold}`, fontFamily: C.sans }}
               >
                 <span className="absolute inset-0 z-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" style={{ backgroundColor: C.gold }} />
-                <span className="relative z-10 flex items-center gap-3">
+                <span className="relative z-10 flex items-center gap-3 text-[10px] sm:text-xs">
                   ZAREZERWUJ DEGUSTACJĘ
                   <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
@@ -1197,11 +1256,78 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto relative z-10">
           <SectionHeader title="Odkryj Nasze Menu" subtitle="Kliknij kategorię, aby zobaczyć nasze najlepsze danie. Strzałka prowadzi do pełnego menu." label="Nasza kuchnia" />
 
-          {/* 3-left / blob / 3-right */}
-          <div className="flex items-start justify-center gap-24 mb-12">
+          {/* Mobile menu categories */}
+          <div className="grid grid-cols-2 gap-4 mb-10 lg:hidden">
+            {MENU_CATEGORIES.map((cat, i) => {
+              const isActive = selectedCat === i;
+              return (
+                <motion.div
+                  key={cat.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.05 + i * 0.05 }}
+                >
+                  <div
+                    className="rounded-2xl p-4 sm:p-5 cursor-pointer"
+                    onClick={() => setSelectedCat(selectedCat === i ? null : i)}
+                    style={{
+                      backgroundColor: C.card,
+                      border: isActive ? `1px solid ${C.gold}` : "1px solid rgba(182,138,58,0.2)",
+                      boxShadow: isActive ? "0 8px 32px rgba(182,138,58,0.2)" : "0 8px 32px rgba(0,0,0,0.4)",
+                      transition: "border 0.25s, box-shadow 0.25s",
+                    }}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 style={{ fontFamily: C.serif, fontSize: 18, fontWeight: 400, color: isActive ? C.gold : C.cream, transition: "color 0.25s" }}>
+                        {cat.name}
+                      </h3>
+                      <motion.button
+                        className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: C.gold }}
+                        onClick={(e) => { e.stopPropagation(); navigate("/menu", { state: { category: cat.menuCategory } }); }}
+                        aria-label={`Przejdź do ${cat.name}`}
+                      >
+                        <ArrowRight size={12} color="#0a1612" />
+                      </motion.button>
+                    </div>
+                    <p style={{ fontFamily: C.sans, fontSize: 12, color: "rgba(243,239,234,0.55)", lineHeight: 1.5 }}>
+                      {cat.description}
+                    </p>
+                    <AnimatePresence>
+                      {isActive && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="pt-3 mt-2 border-t" style={{ borderColor: "rgba(182,138,58,0.2)" }}>
+                            <p style={{ fontFamily: C.serif, fontSize: 15, color: C.cream, marginBottom: 4 }}>
+                              {cat.highlight.name}
+                            </p>
+                            <p style={{ fontFamily: C.sans, fontSize: 11, color: "rgba(243,239,234,0.55)", lineHeight: 1.5, marginBottom: 5 }}>
+                              {cat.highlight.description}
+                            </p>
+                            <p style={{ fontFamily: C.serif, fontSize: 15, color: C.gold }}>
+                              {cat.highlight.price}
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Desktop: 3-left / blob / 3-right */}
+          <div className="hidden lg:flex items-start justify-center gap-24 mb-12">
 
             {/* Left column */}
-            <div className="hidden lg:flex flex-col gap-28 w-72 flex-shrink-0" style={{ height: "460px", overflow: "visible" }}>
+            <div className="flex flex-col gap-28 w-72 flex-shrink-0" style={{ height: "460px", overflow: "visible" }}>
               {MENU_CATEGORIES.slice(0, 2).map((cat, i) => {
                 const isActive = selectedCat === i;
                 return (
@@ -1305,7 +1431,7 @@ export function LandingPage() {
             </motion.div>
 
             {/* Right column */}
-            <div className="hidden lg:flex flex-col gap-28 w-72 flex-shrink-0" style={{ height: "460px", overflow: "visible" }}>
+            <div className="flex flex-col gap-28 w-72 flex-shrink-0" style={{ height: "460px", overflow: "visible" }}>
               {MENU_CATEGORIES.slice(2).map((cat, i) => {
                 const realIdx = i + 2;
                 const isActive = selectedCat === realIdx;
@@ -1387,10 +1513,10 @@ export function LandingPage() {
 
       {/* ═══════════════════════ 9. TESTIMONIALS ═══════════════════════ */}
       <section className="relative py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
-        <div className="relative z-10 max-w-7xl mx-auto px-8">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           {/* Header */}
           <motion.div
-            className="text-center mb-20"
+            className="text-center mb-12 md:mb-20"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -1401,16 +1527,16 @@ export function LandingPage() {
               <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Opinie naszych gości</span>
               <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             </div>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
               Co Mówią o Nas
             </h2>
           </motion.div>
 
           {/* Bento grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
             {/* Large card — spans 2 columns */}
             <motion.div
-              className="md:col-span-2 rounded-3xl p-8 border shadow-2xl relative overflow-hidden group"
+              className="sm:col-span-2 rounded-3xl p-6 sm:p-8 border shadow-2xl relative overflow-hidden group"
               style={{ background: `linear-gradient(135deg, ${C.card}, #1a2820)`, borderColor: "rgba(182,138,58,0.2)" }}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -1528,7 +1654,7 @@ export function LandingPage() {
               <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Rezerwacja</span>
               <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             </div>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
               Twój wieczór — uproszczony
             </h2>
             <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
@@ -1566,7 +1692,7 @@ export function LandingPage() {
                   </div>
                 </div>
                 {/* Image */}
-                <div className={`${step.align === "right" ? "md:col-start-1 md:row-start-1" : ""} relative overflow-hidden rounded-2xl shadow-2xl aspect-[4/3]`}>
+                <div className={`${step.align === "right" ? "md:col-start-1 md:row-start-1" : ""} relative overflow-hidden rounded-2xl shadow-2xl h-[200px] sm:h-[220px] md:h-[200px] lg:h-auto lg:aspect-[4/3]`}>
                   <img src={step.img} alt={step.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.2), transparent, rgba(0,0,0,0.3))" }} />
                 </div>
@@ -1628,7 +1754,7 @@ export function LandingPage() {
             <span className="inline-block text-sm uppercase tracking-[0.3em] mb-6" style={{ fontFamily: C.sans, color: C.gold }}>
               Prywatne wydarzenia
             </span>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-tight mb-6" style={{ fontFamily: C.serif, color: C.cream }}>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-tight mb-6" style={{ fontFamily: C.serif, color: C.cream }}>
               Wyłącznie<br />dla Ciebie
             </h2>
             <p className="text-base leading-relaxed mb-8 max-w-lg" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.75)", lineHeight: 1.8 }}>
@@ -1706,7 +1832,7 @@ export function LandingPage() {
                     Lokalizacja
                   </h3>
                 </div>
-                <p className="text-lg leading-relaxed pl-8" style={{ fontFamily: C.sans, fontWeight: 300, color: C.cream }}>
+                <p className="text-sm sm:text-lg leading-relaxed pl-8" style={{ fontFamily: C.sans, fontWeight: 300, color: C.cream }}>
                   ul. Nowy Świat 42<br />
                   00-363 Warszawa
                 </p>
@@ -1723,7 +1849,7 @@ export function LandingPage() {
                     Godziny otwarcia
                   </h3>
                 </div>
-                <p className="text-lg leading-relaxed pl-8" style={{ fontFamily: C.sans, fontWeight: 300, color: C.cream }}>
+                <p className="text-sm sm:text-lg leading-relaxed pl-8" style={{ fontFamily: C.sans, fontWeight: 300, color: C.cream }}>
                   Wtorek – Sobota: 18:00 – 22:30<br />
                   Niedziela i poniedziałek: Nieczynne
                 </p>
@@ -1740,7 +1866,7 @@ export function LandingPage() {
                     Kontakt
                   </h3>
                 </div>
-                <div className="text-lg leading-relaxed pl-8 space-y-1">
+                <div className="text-sm sm:text-lg leading-relaxed pl-8 space-y-1">
                   <p>
                     <a href="tel:+48223456789" className="hover:underline transition-all duration-200" style={{ fontFamily: C.sans, fontWeight: 300, color: C.gold }}>
                       +48 22 345 67 89
@@ -1787,13 +1913,13 @@ export function LandingPage() {
 
             {/* Right — Map */}
             <div
-              className="rounded-2xl overflow-hidden relative"
-              style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.3)", minHeight: "400px" }}
+              className="rounded-2xl overflow-hidden relative h-[300px] md:h-[320px] lg:h-[420px]"
+              style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}
             >
               <img
                 src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80"
                 alt="Eleganckie wnętrze restauracji"
-                className="w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
                 style={{ filter: "brightness(0.6)" }}
               />
@@ -1834,7 +1960,7 @@ export function LandingPage() {
               <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Newsletter</span>
               <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             </div>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
               Pozostań w kontakcie
             </h2>
             <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
@@ -1897,11 +2023,11 @@ export function LandingPage() {
 
       {/* ═══════════════════════ 15. FOOTER ═══════════════════════ */}
       <footer className="relative py-16" style={{ backgroundColor: C.dark, borderTop: `1px solid rgba(182,138,58,0.2)` }}>
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
             {/* Logo */}
             <motion.div
-              className="text-4xl font-light tracking-wide"
+              className="text-2xl sm:text-4xl font-light tracking-wide"
               style={{ fontFamily: C.serif, color: C.cream }}
               whileHover={{ scale: 1.05, rotate: -2 }}
             >
@@ -1909,7 +2035,7 @@ export function LandingPage() {
             </motion.div>
 
             {/* Copyright */}
-            <p className="text-sm tracking-widest" style={{ fontFamily: C.sans, color: "rgba(197,191,181,1)" }}>
+            <p className="text-xs sm:text-sm tracking-widest text-center" style={{ fontFamily: C.sans, color: "rgba(197,191,181,1)" }}>
               © {new Date().getFullYear()} La Maison Dorée. Wszelkie prawa zastrzeżone.
             </p>
 

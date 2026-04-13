@@ -88,17 +88,17 @@ function GallerySection({ onImageClick }: { onImageClick: (idx: number) => void 
   return (
     <section ref={containerRef} id="gallery" className="relative py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-8">
-        <motion.div className="text-center mb-20" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <motion.div className="text-center mb-12 md:mb-20" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
           <div className="inline-flex items-center gap-4 mb-8">
             <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Fotografia</span>
             <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
           </div>
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>Galeria Smaków</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>Galeria Smaków</h2>
           <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>Odkryj wizualną podróż przez nasze kulinarne arcydzieła</p>
         </motion.div>
-        <div className="grid grid-cols-4 gap-4" style={{ gridAutoRows: '300px' }}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4" style={{ gridAutoRows: 'clamp(160px, 25vw, 300px)' }}>
           <GalleryTile image={GALLERY_IMAGES[0]} idx={0} className="col-span-2 row-span-2" onImageClick={onImageClick} />
           <GalleryTile image={GALLERY_IMAGES[1]} idx={1} onImageClick={onImageClick} />
           <GalleryTile image={GALLERY_IMAGES[2]} idx={2} onImageClick={onImageClick} />
@@ -339,7 +339,7 @@ export function PrivateEventsPage() {
               <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Rodzaje</span>
               <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             </div>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
               Cztery sposoby<br />
               <span className="italic">na Twój wieczór</span>
             </h2>
@@ -359,20 +359,20 @@ export function PrivateEventsPage() {
                       borderColor: isOpen ? 'rgba(182,138,58,0.6)' : 'rgba(182,138,58,0.1)',
                       backgroundColor: isOpen ? 'rgba(182,138,58,0.05)' : 'transparent',
                     }}>
-                      <div className="flex items-center justify-between px-8 py-7">
-                        <div className="flex items-center gap-8">
-                          <span className="text-xs font-mono tracking-wider" style={{ color: 'rgba(182,138,58,0.3)' }}>
+                      <div className="flex items-center justify-between px-4 sm:px-8 py-5 sm:py-7">
+                        <div className="flex items-center gap-3 sm:gap-8">
+                          <span className="text-xs font-mono tracking-wider hidden sm:block" style={{ color: 'rgba(182,138,58,0.3)' }}>
                             {String(index + 1).padStart(2, '0')}
                           </span>
-                          <div className="w-12 h-12 rounded-full border flex items-center justify-center transition-colors"
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center transition-colors flex-shrink-0"
                             style={{ borderColor: 'rgba(182,138,58,0.2)', color: C.gold }}>
-                            <Icon className="w-5 h-5" />
+                            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                           </div>
                           <div>
-                            <h3 className="text-2xl transition-colors" style={{ fontFamily: C.serif, color: isOpen ? C.gold : C.cream }}>
+                            <h3 className="text-lg sm:text-2xl transition-colors" style={{ fontFamily: C.serif, color: isOpen ? C.gold : C.cream }}>
                               {event.title}
                             </h3>
-                            <span className="text-xs tracking-wider uppercase" style={{ color: C.muted, fontFamily: C.sans }}>{event.subtitle}</span>
+                            <span className="text-[10px] sm:text-xs tracking-wider uppercase" style={{ color: C.muted, fontFamily: C.sans }}>{event.subtitle}</span>
                           </div>
                         </div>
                         <ChevronDown className={`w-5 h-5 transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} style={{ color: C.gold }} />
@@ -388,7 +388,7 @@ export function PrivateEventsPage() {
                             <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
                             <div className="absolute inset-0" style={{ background: `linear-gradient(to right, transparent, rgba(14,23,20,0.6))` }} />
                           </div>
-                          <div className="p-10 flex flex-col justify-center" style={{ backgroundColor: C.dark }}>
+                          <div className="p-6 sm:p-10 flex flex-col justify-center" style={{ backgroundColor: C.dark }}>
                             <p className="leading-relaxed mb-6" style={{ color: C.muted, fontFamily: C.sans }}>{event.description}</p>
                             <a href="#zapytanie" className="inline-flex items-center gap-2 text-sm transition-all hover:gap-3" style={{ color: C.gold, fontFamily: C.sans }}>
                               Zapytaj o ten typ wydarzenia <ArrowRight className="w-4 h-4" />
@@ -417,7 +417,7 @@ export function PrivateEventsPage() {
               <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Przestrzenie</span>
               <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             </div>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
               Znajdź idealne miejsce
             </h2>
           </motion.div>
@@ -425,7 +425,7 @@ export function PrivateEventsPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {venues.map((venue, index) => (
               <motion.div key={venue.name} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: index * 0.15 }} className="group relative">
-                <div className="relative border transition-all duration-700 p-10 overflow-hidden" style={{ borderColor: 'rgba(182,138,58,0.15)' }}>
+                <div className="relative border transition-all duration-700 p-6 sm:p-10 overflow-hidden" style={{ borderColor: 'rgba(182,138,58,0.15)' }}>
                   {/* Corner accents */}
                   <div className="absolute top-0 left-0 w-8 h-px" style={{ backgroundColor: 'rgba(182,138,58,0.4)' }} />
                   <div className="absolute top-0 left-0 h-8 w-px" style={{ backgroundColor: 'rgba(182,138,58,0.4)' }} />
@@ -491,7 +491,7 @@ export function PrivateEventsPage() {
               <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Proces</span>
               <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             </div>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>Jak to działa</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>Jak to działa</h2>
             <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>Od pierwszego zapytania do wydarzenia — cztery proste kroki.</p>
           </motion.div>
 
@@ -533,9 +533,9 @@ export function PrivateEventsPage() {
                               style={{ borderColor: C.gold, backgroundColor: isOpen ? C.gold : 'transparent' }}>
                               <span className="text-xs font-mono" style={{ color: isOpen ? C.dark : C.gold }}>{step.number}</span>
                             </div>
-                            <h3 className="text-2xl" style={{ fontFamily: C.serif, color: C.cream }}>{step.title}</h3>
+                            <h3 className="text-lg" style={{ fontFamily: C.serif, color: C.cream }}>{step.title}</h3>
                           </div>
-                          <h3 className="hidden md:block text-2xl mb-2 transition-colors" style={{ fontFamily: C.serif, color: C.cream }}>{step.title}</h3>
+                          <h3 className="hidden md:block text-lg lg:text-2xl mb-2 transition-colors" style={{ fontFamily: C.serif, color: C.cream }}>{step.title}</h3>
                           <p className="text-sm leading-relaxed" style={{ color: C.muted, fontFamily: C.sans }}>{step.description}</p>
                         </button>
 
@@ -581,14 +581,14 @@ export function PrivateEventsPage() {
             </div>
 
             {/* Form */}
-            <div className="lg:col-span-3 p-8 lg:p-12" style={{ backgroundColor: C.deeper }}>
+            <div className="lg:col-span-3 p-5 sm:p-8 lg:p-12" style={{ backgroundColor: C.deeper }}>
               <div className="mb-10">
                 <div className="inline-flex items-center gap-4 mb-8">
                   <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
                   <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Kontakt</span>
                   <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
                 </div>
-                <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>Zapytaj o wydarzenie</h2>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>Zapytaj o wydarzenie</h2>
                 <p className="text-base leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>Odpowiemy w ciągu 4 godzin roboczych.</p>
               </div>
 
@@ -629,7 +629,7 @@ export function PrivateEventsPage() {
 
                 <div>
                   <label className="block mb-3 text-xs tracking-widest" style={{ color: C.muted, fontFamily: C.sans }}>RODZAJ WYDARZENIA *</label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
                       { id: 'prywatna-kolacja', label: 'Prywatna kolacja' },
                       { id: 'eventy-biznesowe', label: 'Biznesowe' },
@@ -667,7 +667,7 @@ export function PrivateEventsPage() {
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                   <div className="relative">
                     <label className="block mb-2 text-xs tracking-widest" style={{ color: C.muted, fontFamily: C.sans }}>LICZBA GOŚCI</label>
                     <div className="relative">
@@ -747,7 +747,7 @@ export function PrivateEventsPage() {
               <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>FAQ</span>
               <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             </div>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
               Najczęściej zadawane pytania
             </h2>
           </motion.div>
@@ -759,7 +759,7 @@ export function PrivateEventsPage() {
                 <button onClick={() => setOpenFaq(openFaq === index ? null : index)} className="w-full px-0 py-6 flex items-center justify-between text-left group">
                   <div className="flex items-center gap-6">
                     <span className="text-xs font-mono w-6" style={{ color: 'rgba(182,138,58,0.3)' }}>{String(index + 1).padStart(2, '0')}</span>
-                    <span className="transition-colors" style={{ color: openFaq === index ? C.gold : C.cream, fontFamily: C.sans }}>
+                    <span className="transition-colors text-sm sm:text-base" style={{ color: openFaq === index ? C.gold : C.cream, fontFamily: C.sans }}>
                       {faq.question}
                     </span>
                   </div>
@@ -789,9 +789,9 @@ export function PrivateEventsPage() {
 
       {/* ═══════════ FOOTER (same as landing page) ═══════════ */}
       <footer className="relative py-16" style={{ backgroundColor: C.dark, borderTop: `1px solid rgba(182,138,58,0.2)` }}>
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <motion.div className="text-4xl font-light tracking-wide" style={{ fontFamily: C.serif, color: C.cream }} whileHover={{ scale: 1.05, rotate: -2 }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
+            <motion.div className="text-2xl sm:text-4xl font-light tracking-wide" style={{ fontFamily: C.serif, color: C.cream }} whileHover={{ scale: 1.05, rotate: -2 }}>
               La Maison Dorée
             </motion.div>
             <p className="text-sm tracking-widest" style={{ fontFamily: C.sans, color: 'rgba(197,191,181,1)' }}>

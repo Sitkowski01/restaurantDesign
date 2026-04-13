@@ -661,7 +661,7 @@ export function GuestDetailsPage() {
                 </p>
                 <button
                   onClick={handleSubmit}
-                  className="order-1 sm:order-2 flex items-center gap-2 px-10 py-4 rounded-lg transition-all duration-300"
+                  className="order-1 sm:order-2 flex items-center gap-2 px-6 py-3 sm:px-10 sm:py-4 rounded-lg transition-all duration-300 text-sm sm:text-base"
                   style={{
                     fontWeight: 500,
                     fontFamily: C.sans,
