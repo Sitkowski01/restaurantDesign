@@ -1,7 +1,8 @@
 # La Maison Dorée — strona restauracji z systemem rezerwacji
 
 Aplikacja webowa dla restauracji: strona prezentacyjna, pełny proces rezerwacji stolika
-oraz trzy panele operacyjne dla personelu. Zbudowana w React i TypeScript, z backendem
+oraz trzy rozbudowane panele operacyjne dla personelu — kelnera, menedżera i administratora,
+każdy z własnym zakresem uprawnień. Zbudowana w React i TypeScript, z backendem
 na Supabase i wdrożeniem na Vercelu.
 
 ## Co robi
@@ -16,14 +17,35 @@ na Supabase i wdrożeniem na Vercelu.
 - Zgoda na pliki cookie
 - Obsługa nieistniejących adresów (404)
 
-**Część dla personelu**
+**Część dla personelu — trzy panele, trzy różne role**
 
-- Logowanie pracownika
-- **Panel kelnera** — bieżące rezerwacje i obsługa sali
-- **Panel menedżera** — zarządzanie rezerwacjami i dostępnością stolików
-- **Panel administratora** — konfiguracja i podgląd całości
+Logowanie pracownika kieruje do panelu zależnego od roli. Każdy z nich to osobny,
+rozbudowany widok — łącznie ponad 7 000 linii kodu.
 
-Każda rola widzi inny zakres danych i inne akcje.
+**Panel kelnera** — narzędzie do obsługi sali w trakcie serwisu
+
+- Interaktywny **plan sali** z podziałem na sekcje i przeciąganiem stolików
+- Statusy stolików i lista nadchodzących rezerwacji, także gości bez rezerwacji
+- **Przyjmowanie zamówień** z karty: dania, napoje, dobór win, dolewki
+- Zbiorcze oznaczanie napojów jako podanych i kontrola, czy całe zamówienie wyszło
+- **Alergeny przy pozycji zamówienia**, z możliwością dopisania własnego,
+  i oznaczenie, że kuchnia została powiadomiona
+
+**Panel menedżera** — bieżące zarządzanie zmianą
+
+- Nadchodzące rezerwacje z filtrami i podsumowaniem dnia oraz tygodnia
+- **Grafik zmian** i obsada personelu
+- Zarządzanie stolikami i ich dostępnością
+- Edycja karty: dania, składniki, kategorie, oznaczenia alergenów i zawartości alkoholu
+
+**Panel administratora** — konfiguracja całego lokalu
+
+- **Zarządzanie personelem:** role (administrator, menedżer, serwis), stanowiska,
+  umowy, aktywacja i dezaktywacja kont
+- Pełna edycja karty dań i napojów wraz z kategoriami i alergenami
+- Wydarzenia i rezerwacje na wyłączność
+- **Polityka anulacji** z regułami opłat po terminie
+- **Analityka:** przychody, podsumowania tygodniowe i miesięczne, aktywność personelu
 
 ## Stack
 
