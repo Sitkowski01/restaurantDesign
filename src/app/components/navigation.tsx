@@ -83,6 +83,7 @@ export function Navigation() {
             {/* Logo / Restaurant Name */}
             <motion.button
               onClick={handleLogoClick}
+              className="cursor-pointer"
               whileHover={{ scale: 1.05, rotate: -1 }}
             >
               <h1
@@ -109,7 +110,7 @@ export function Navigation() {
                 <motion.button
                   key={label}
                   onClick={action}
-                  className="text-sm uppercase tracking-wider relative group"
+                  className="text-sm uppercase tracking-wider relative group cursor-pointer"
                   style={navLinkStyle}
                   whileHover={{ y: -3, color: '#B68A3A' }}
                   transition={{ duration: 0.2 }}
@@ -122,7 +123,7 @@ export function Navigation() {
               {/* Reserve CTA */}
               <motion.button
                 onClick={handleReserve}
-                className="px-8 py-3 rounded-xl border border-[#B68A3A] bg-[#B68A3A] text-[#0a1612] hover:bg-transparent hover:text-[#B68A3A] transition-colors tracking-widest text-sm"
+                className="px-8 py-3 rounded-xl border border-[#B68A3A] bg-[#B68A3A] text-[#0a1612] hover:bg-transparent hover:text-[#B68A3A] transition-colors tracking-widest text-sm cursor-pointer"
                 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}
                 whileHover={{ scale: 1.05, rotate: -1 }}
                 whileTap={{ scale: 0.95 }}
@@ -134,7 +135,7 @@ export function Navigation() {
             {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 rounded-lg transition-colors duration-200"
+              className="md:hidden p-2 rounded-lg transition-colors duration-200 cursor-pointer"
               style={{ color: '#F3EFEA' }}
               aria-label={mobileOpen ? 'Zamknij menu' : 'Otwórz menu'}
             >
@@ -175,7 +176,7 @@ export function Navigation() {
             <button
               key={link.label}
               onClick={link.action}
-              className="text-left py-3 text-sm uppercase tracking-wider transition-colors duration-200"
+              className="text-left py-3 text-sm uppercase tracking-wider transition-colors duration-200 cursor-pointer"
               style={{
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 400,
@@ -191,7 +192,7 @@ export function Navigation() {
           {/* Reserve CTA */}
           <button
             onClick={handleReserve}
-            className="mt-6 w-full py-3.5 rounded-lg text-sm uppercase tracking-wider transition-all duration-200"
+            className="mt-6 w-full py-3.5 rounded-lg text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer"
             style={{
               fontFamily: 'Inter, sans-serif',
               fontWeight: 500,

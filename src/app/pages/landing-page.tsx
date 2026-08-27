@@ -250,7 +250,7 @@ function GoldButton({
   return (
     <button
       onClick={onClick}
-      className={`px-10 py-4 rounded-lg transition-all duration-300 ${className}`}
+      className={`px-10 py-4 rounded-lg transition-all duration-300 cursor-pointer ${className}`}
       style={{
         fontFamily: C.sans,
         fontWeight: 500,
@@ -302,7 +302,7 @@ function GalleryTile({
 }) {
   return (
     <motion.button
-      className={`relative group overflow-hidden rounded-2xl focus:outline-none ${className}`}
+      className={`relative group overflow-hidden rounded-2xl focus:outline-none cursor-pointer ${className}`}
       initial={{ opacity: 0, scale: 0.95 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
@@ -392,9 +392,6 @@ function ExperienceSection() {
 
   return (
     <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
-      {/* Decorative corner lines */}
-      <div className="absolute top-12 left-12 w-24 h-24 border-t border-l hidden lg:block" style={{ borderColor: `${C.gold}1A` }} />
-      <div className="absolute bottom-12 right-12 w-24 h-24 border-b border-r hidden lg:block" style={{ borderColor: `${C.gold}1A` }} />
 
       <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
         {/* Header */}
@@ -420,81 +417,17 @@ function ExperienceSection() {
           </h2>
         </motion.div>
 
-        {/* Tabs — desktop: inline row, mobile: 2x2 grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-12 sm:mb-16 lg:mb-20"
-        >
-          {/* Desktop tabs */}
-          <div className="hidden sm:flex justify-center">
-            <div className="inline-flex" style={{ border: `1px solid ${C.gold}26` }}>
-              {EXPERIENCE_PILLARS.map((p) => {
-                const Icon = p.icon;
-                const isActive = p.id === activeId;
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => setActiveId(p.id)}
-                    className="relative flex items-center gap-3 px-6 py-4 text-xs tracking-[0.15em] uppercase transition-all duration-500"
-                    style={{
-                      fontFamily: C.sans,
-                      backgroundColor: isActive ? `${C.gold}1A` : "transparent",
-                      color: isActive ? C.gold : "rgba(243,239,234,0.35)",
-                    }}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{p.tag}</span>
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute bottom-0 left-0 right-0 h-px"
-                        style={{ backgroundColor: C.gold }}
-                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
-          {/* Mobile tabs — 2x2 grid */}
-          <div className="grid grid-cols-2 gap-2 sm:hidden">
-            {EXPERIENCE_PILLARS.map((p) => {
-              const Icon = p.icon;
-              const isActive = p.id === activeId;
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => setActiveId(p.id)}
-                  className="flex items-center gap-2 px-3 py-3 text-[11px] tracking-[0.1em] uppercase transition-all duration-300 rounded-lg"
-                  style={{
-                    fontFamily: C.sans,
-                    backgroundColor: isActive ? `${C.gold}1A` : "transparent",
-                    color: isActive ? C.gold : "rgba(243,239,234,0.4)",
-                    border: isActive ? `1px solid ${C.gold}40` : "1px solid rgba(182,138,58,0.12)",
-                  }}
-                >
-                  <Icon className="w-4 h-4 flex-shrink-0" />
-                  <span>{p.tag}</span>
-                </button>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* Content area */}
-        <div className="relative" style={{ minHeight: '280px' }}>
-          <AnimatePresence mode="popLayout">
+        {/* Content area — fixed height so navigation never jumps */}
+        <div className="relative" style={{ height: 'clamp(220px, 28vw, 300px)' }}>
+          <AnimatePresence mode="wait">
             <motion.div
               key={activeId}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               {/* Mobile layout: icon + text stacked */}
               <div className="flex flex-col items-center text-center lg:hidden">
@@ -509,9 +442,11 @@ function ExperienceSection() {
                   </div>
                 </div>
 
-                <span className="text-xs tracking-[0.3em] uppercase mb-3 block" style={{ color: C.gold, fontFamily: C.sans }}>
-                  {active.tag}
-                </span>
+                <div className="inline-flex items-center gap-4 mb-3">
+                  <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+                  <span className="text-xs tracking-[0.3em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>{active.tag}</span>
+                  <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+                </div>
 
                 <h3 className="text-2xl font-light mb-4 leading-tight" style={{ fontFamily: C.serif, color: C.cream }}>
                   {active.title}
@@ -528,45 +463,97 @@ function ExperienceSection() {
                 </p>
               </div>
 
-              {/* Desktop layout: number left + text right */}
+              {/* Desktop layout: blob left + text right */}
               <div className="hidden lg:grid lg:grid-cols-12 gap-16 items-center">
-                {/* Left — large number + decorative SVG */}
-                <div className="lg:col-span-5 flex flex-col items-center lg:items-end">
-                  <div className="relative">
-                    <span className="text-[240px] font-light leading-none select-none block" style={{ fontFamily: C.serif, color: `${C.gold}12` }}>
-                      {active.number}
-                    </span>
-
-                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" fill="none" preserveAspectRatio="xMidYMid meet">
-                      <motion.path
-                        d={active.accent}
-                        stroke={C.gold}
-                        strokeWidth="0.5"
-                        strokeDasharray="4 4"
-                        strokeOpacity="0.3"
-                        fill="none"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                      />
-                    </svg>
-
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                      <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ border: `1px solid ${C.gold}40` }}>
-                        <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ border: `1px solid ${C.gold}26` }}>
-                          <ActiveIcon className="w-6 h-6" style={{ color: C.gold }} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                {/* Left — layered growing blob */}
+                <div className="lg:col-span-5 flex items-center justify-center">
+                  {(() => {
+                    const idx = ["sezonowosc","sommelier","serwis","atmosfera"].indexOf(activeId);
+                    const sizes = [180, 202, 225, 250];
+                    const sz = sizes[idx];
+                    const layers = [
+                      { scale: 1,     br: ["62% 38% 46% 54% / 60% 44% 56% 40%","44% 56% 62% 38% / 38% 62% 44% 56%","56% 44% 38% 62% / 54% 38% 62% 46%","62% 38% 46% 54% / 60% 44% 56% 40%"], fill: "rgba(243,239,234,0.07)", border: "rgba(243,239,234,0.12)", glow: 1.45, glowOp: 0.28, dur: 8  },
+                      { scale: 1.12, br: ["44% 56% 62% 38% / 54% 46% 38% 62%","62% 38% 44% 56% / 38% 62% 54% 46%","50% 50% 50% 50% / 60% 40% 60% 40%","44% 56% 62% 38% / 54% 46% 38% 62%"], fill: "transparent", border: "rgba(182,138,58,0.35)", glow: 1.22, glowOp: 0.22, dur: 10 },
+                      { scale: 1.24, br: ["56% 44% 38% 62% / 44% 60% 40% 56%","38% 62% 56% 44% / 60% 40% 56% 44%","62% 38% 54% 46% / 38% 62% 46% 54%","56% 44% 38% 62% / 44% 60% 40% 56%"], fill: "transparent", border: "rgba(182,138,58,0.20)", glow: 1.35, glowOp: 0.10, dur: 12 },
+                      { scale: 1.36, br: ["38% 62% 54% 46% / 56% 38% 62% 44%","54% 46% 38% 62% / 44% 56% 38% 62%","46% 54% 62% 38% / 62% 38% 54% 46%","38% 62% 54% 46% / 56% 38% 62% 44%"], fill: "transparent", border: "rgba(182,138,58,0.10)", glow: 1.48, glowOp: 0.05, dur: 15 },
+                    ];
+                    return (
+                      <motion.div
+                        className="relative flex items-center justify-center"
+                        animate={{ width: sz, height: sz }}
+                        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                        style={{ width: sz, height: sz }}
+                      >
+                        {/* All 4 layers always visible — active ones light up */}
+                        {layers.map((layer, li) => {
+                          const isLit = li <= idx;
+                          return (
+                            <motion.div key={li} className="absolute inset-0" style={{ transform: `scale(${layer.scale})`, transformOrigin: "center" }}>
+                              {/* Glow — only when lit */}
+                              <motion.div
+                                className="absolute inset-0 pointer-events-none"
+                                animate={{ borderRadius: layer.br, opacity: isLit ? 1 : 0 }}
+                                transition={{ borderRadius: { duration: layer.dur, repeat: Infinity, ease: "easeInOut" }, opacity: { duration: 0.5 } }}
+                                style={{ transform: `scale(${layer.glow})`, transformOrigin: "center", background: `radial-gradient(ellipse,rgba(182,138,58,${layer.glowOp}) 0%,transparent 70%)`, filter: "blur(22px)" }}
+                              />
+                              {/* Shape */}
+                              <motion.div
+                                className="absolute inset-0"
+                                animate={{
+                                  borderRadius: layer.br,
+                                  borderColor: isLit ? (li === 0 ? "rgba(243,239,234,0.22)" : "rgba(182,138,58,0.45)") : "rgba(243,239,234,0.06)",
+                                  backgroundColor: li === 0 ? (isLit ? "rgba(243,239,234,0.07)" : "rgba(243,239,234,0.02)") : "transparent",
+                                }}
+                                transition={{ borderRadius: { duration: layer.dur, repeat: Infinity, ease: "easeInOut" }, borderColor: { duration: 0.5 }, backgroundColor: { duration: 0.5 } }}
+                                style={{ border: "1px solid rgba(243,239,234,0.06)" }}
+                              />
+                            </motion.div>
+                          );
+                        })}
+                        {/* Icon + number — always on top */}
+                        <motion.div
+                          key={activeId}
+                          className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none"
+                          style={{ zIndex: 20 }}
+                          initial={{ scale: 0.7, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                        >
+                          <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(182,138,58,0.08)", border: "1px solid rgba(182,138,58,0.3)" }}>
+                            <ActiveIcon className="w-7 h-7" style={{ color: C.gold }} />
+                          </div>
+                          <span className="text-6xl font-light select-none" style={{ fontFamily: C.serif, color: "rgba(182,138,58,0.55)" }}>
+                            {active.number}
+                          </span>
+                        </motion.div>
+                        {/* Pulsing dots */}
+                        {[
+                          { top: "5%",  left: "80%", size: 5, delay: 0 },
+                          { top: "85%", left: "10%", size: 4, delay: 1.1 },
+                          { top: "15%", left: "5%",  size: 3, delay: 0.5 },
+                          { top: "75%", left: "85%", size: 6, delay: 1.7 },
+                        ].slice(0, idx + 1).map((dot, i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute rounded-full pointer-events-none"
+                            style={{ top: dot.top, left: dot.left, width: dot.size, height: dot.size, backgroundColor: C.gold }}
+                            animate={{ opacity: [0.2, 0.8, 0.2], scale: [1, 1.6, 1] }}
+                            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: dot.delay }}
+                          />
+                        ))}
+                      </motion.div>
+                    );
+                  })()}
                 </div>
 
                 {/* Right — text content */}
                 <div className="lg:col-span-7">
                   <div className="max-w-lg">
-                    <span className="text-xs tracking-[0.3em] uppercase mb-4 block" style={{ color: C.gold, fontFamily: C.sans }}>
-                      {active.tag}
-                    </span>
+                    <div className="inline-flex items-center gap-4 mb-4">
+                      <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+                      <span className="text-xs tracking-[0.3em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>{active.tag}</span>
+                      <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+                    </div>
 
                     <h3 className="text-4xl font-light mb-6 leading-tight" style={{ fontFamily: C.serif, color: C.cream }}>
                       {active.title}
@@ -592,7 +579,7 @@ function ExperienceSection() {
         <div className="mt-12 sm:mt-16 lg:mt-24">
           <div className="flex justify-center gap-3">
             {EXPERIENCE_PILLARS.map((p) => (
-              <button key={p.id} onClick={() => setActiveId(p.id)} className="group flex flex-col items-center gap-2">
+              <button key={p.id} onClick={() => setActiveId(p.id)} className="group flex flex-col items-center gap-2 cursor-pointer">
                 <div
                   className="h-px transition-all duration-500"
                   style={{
@@ -621,6 +608,12 @@ function ExperienceSection() {
 
 export function LandingPage() {
   const navigate = useNavigate();
+
+  /* ── story tabs ── */
+  const [storyTab, setStoryTab] = useState<"historia" | "szef">("historia");
+
+  /* ── tasting menu active dish ── */
+  const [activeDish, setActiveDish] = useState(0);
 
   /* ── lightbox ── */
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
@@ -788,47 +781,30 @@ export function LandingPage() {
 
               {/* Buttons */}
               <div className="flex flex-wrap gap-3 sm:gap-4">
-                <motion.button
-                  className="group relative px-6 sm:px-8 py-3 sm:py-4 font-semibold rounded-full flex items-center gap-3 overflow-hidden text-sm sm:text-base"
-                  style={{
-                    backgroundColor: C.gold,
-                    color: "#0a1612",
-                    fontFamily: C.sans,
-                    boxShadow: "0 8px 32px rgba(182,138,58,0.4)",
-                  }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate("/reserve")}
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-[#d4a574] to-[#b68a3a]"
-                    initial={{ x: "-100%" }}
-                    whileHover={{ x: 0 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <span className="relative z-10">Zamów Teraz</span>
-                  <motion.div
-                    className="relative z-10 w-6 h-6 bg-[#0a1612] rounded-full flex items-center justify-center"
-                    whileHover={{ x: 5 }}
+                <div className="group inline-block">
+                  <button
+                    onClick={() => navigate("/reserve")}
+                    className="relative px-6 sm:px-8 py-3 sm:py-4 rounded-full overflow-hidden border border-[#B68A3A] text-[#0a1612] group-hover:text-[#B68A3A] transition-colors duration-500 cursor-pointer font-semibold text-sm sm:text-base flex items-center gap-3"
+                    style={{ fontFamily: C.sans, boxShadow: "0 8px 32px rgba(182,138,58,0.4)" }}
                   >
-                    <ArrowRight className="w-4 h-4" style={{ color: C.gold }} />
-                  </motion.div>
-                </motion.button>
+                    <span className="absolute inset-0 z-0 bg-[#B68A3A] translate-y-0 group-hover:translate-y-full transition-transform duration-500 ease-out" />
+                    <span className="relative z-10">Zamów Teraz</span>
+                    <span className="relative z-10 w-6 h-6 bg-[#0a1612] group-hover:bg-[#0a1612] rounded-full flex items-center justify-center transition-colors duration-500">
+                      <ArrowRight className="w-4 h-4 text-[#B68A3A] group-hover:text-[#B68A3A]" />
+                    </span>
+                  </button>
+                </div>
 
-                <motion.button
-                  className="px-6 sm:px-8 py-3 sm:py-4 font-semibold rounded-full transition-all text-sm sm:text-base"
-                  style={{
-                    border: `2px solid ${C.gold}`,
-                    color: C.gold,
-                    fontFamily: C.sans,
-                    backgroundColor: "transparent",
-                  }}
-                  whileHover={{ scale: 1.05, backgroundColor: "rgba(182,138,58,0.1)" }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
-                >
-                  Poznaj Menu
-                </motion.button>
+                <div className="group inline-block">
+                  <button
+                    onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" })}
+                    className="relative px-6 sm:px-8 py-3 sm:py-4 rounded-full overflow-hidden border-2 border-[#B68A3A] text-[#B68A3A] group-hover:text-[#0a1612] transition-colors duration-500 cursor-pointer font-semibold text-sm sm:text-base"
+                    style={{ fontFamily: C.sans }}
+                  >
+                    <span className="absolute inset-0 z-0 bg-[#B68A3A] translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
+                    <span className="relative z-10">Poznaj Menu</span>
+                  </button>
+                </div>
               </div>
 
               {/* Stats */}
@@ -976,147 +952,145 @@ export function LandingPage() {
       `}</style>
 
       {/* ═══════════════════════ 2. BRAND STORY ═══════════════════════ */}
+      {/* ═══════════════════════ 2+3. HISTORIA & SZEF KUCHNI ═══════════════════════ */}
       <section id="story" className="px-6 md:px-12 py-24 md:py-32" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Image */}
-          <div className="rounded-2xl overflow-hidden" style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.4)" }}>
-            <img
-              src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=800&q=80"
-              alt="Inside La Maison Dorée"
-              className="w-full h-[220px] sm:h-[240px] lg:h-[480px] object-cover"
-              loading="lazy"
-              style={{ filter: "brightness(0.85)" }}
-            />
-          </div>
+        <div className="max-w-6xl mx-auto">
 
-          {/* Copy */}
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-4 mb-2">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-12 sm:mb-16"
+          >
+            <div className="inline-flex items-center gap-4 mb-6">
               <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
-              <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Nasza historia</span>
+              <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>O nas</span>
               <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
             </div>
-            <h2
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]"
-              style={{ fontFamily: C.serif, color: C.cream }}
-            >
-              Gdzie tradycja spotyka śmiąłość
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+              Skąd pochodzimy,<br /><span className="italic">kto nas tworzy</span>
             </h2>
-            <p
-              className="text-base leading-relaxed"
-              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}
-            >
-              La Maison Dorée powstała z prostego przekonania: że wielka
-              restauracja to nie tylko to, co jest na talerzu, ale także historia,
-              którą opowiada. Założona w 2018 roku przez Szefa Kuchni Juliena Moreau
-              przy ulicy Nowy Świat w Warszawie, łączy dyscyplinę klasycznej francuskiej
-              techniki z wolnością nowoczesnej inwencji.
-            </p>
-            <p
-              className="text-base leading-relaxed"
-              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}
-            >
-              Każdego wieczoru przyjmujemy nie więcej niż czterdzieścioro gości
-              w przestrzeni inspirowanej paryskimi salonami lat 20. XX wieku —
-              kameralnej, spokojnej i zaprojektowanej tak, abyś zapomniał o mieście
-              na zewnątrz. Nasza filozofia opiera się na sezonowości, szacunku dla
-              składników i przekonaniu, że gościnność jest formą sztuki.
-            </p>
-            <blockquote
-              className="border-l-2 pl-6 py-2 mt-4"
-              style={{ borderColor: C.gold }}
-            >
-              <p
-                className="text-lg italic"
-                style={{ fontFamily: C.serif, fontWeight: 400, color: "rgba(243,239,234,0.85)" }}
-              >
-                "Gotowanie to pamięć. Każde danie, które podaję, nosi w sobie
-                miejsce, osobę, chwilę, której nigdy nie chcę zapomnieć."
-              </p>
-              <cite
-                className="text-sm not-italic block mt-3"
-                style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold }}
-              >
-                — Chef Julien Moreau
-              </cite>
-            </blockquote>
-          </div>
-        </div>
-      </section>
+          </motion.div>
 
-      {/* ═══════════════════════ 3. CHEF INTRODUCTION ═══════════════════════ */}
-      <section
-        className="px-6 md:px-12 py-24 md:py-32"
-        style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}
-      >
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Copy (left on desktop) */}
-          <div className="space-y-6 order-2 lg:order-1">
-            <div className="inline-flex items-center gap-4 mb-2">
-              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
-              <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Szef kuchni</span>
-              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
-            </div>
-            <h2
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]"
-              style={{ fontFamily: C.serif, color: C.cream }}
-            >
-              Julien Moreau
-            </h2>
-            <p
-              className="text-base leading-relaxed"
-              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}
-            >
-              Urodzony w Lyonie, szkolony pod okiem Alaina Ducasse'a i Anne-Sophie Pic,
-              Julien Moreau spędził dekadę w restauracjach z gwiazdkami Michelin w Paryżu,
-              Tokio i Kopenhadze, zanim w wieku 34 lat otworzył La Maison Dorée.
-            </p>
-            <p
-              className="text-base leading-relaxed"
-              style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}
-            >
-              Jego kuchnia zakorzeniona jest w kanonie francuskim, ale kształtowana
-              przez niespokojną ciekawość — japońska precyzja, nordycki minimalizm
-              i filozofia farm-to-table odnajdują drogę na talerzu. Julien
-              osobiście wybiera produkty od małych hodowców z Prowansji, Bretanii
-              i Doliny Loary każdego tygodnia.
-            </p>
-
-            {/* Accolades */}
-            <div className="flex flex-wrap gap-4 pt-4">
-              {[
-                "Michelin ★ 2021",
-                "Gault & Millau 16/20",
-                "Najlepszy nowy szef — Le Figaro 2019",
-              ].map((badge) => (
-                <span
-                  key={badge}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs uppercase tracking-wider"
-                  style={{
-                    fontFamily: C.sans,
-                    fontWeight: 500,
-                    color: C.gold,
-                    backgroundColor: "rgba(182,138,58,0.1)",
-                    border: "1px solid rgba(182,138,58,0.25)",
-                  }}
+          {/* Content */}
+          <div style={{ minHeight: "560px" }}>
+            <AnimatePresence mode="wait">
+              {storyTab === "historia" && (
+                <motion.div
+                  key="historia"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -16 }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center"
                 >
-                  <Award size={14} />
-                  {badge}
-                </span>
-              ))}
-            </div>
+                  <div className="rounded-2xl overflow-hidden" style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.4)" }}>
+                    <img
+                      src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=800&q=80"
+                      alt="Inside La Maison Dorée"
+                      className="w-full h-[220px] sm:h-[240px] lg:h-[480px] object-cover"
+                      loading="lazy"
+                      style={{ filter: "brightness(0.85)" }}
+                    />
+                  </div>
+                  <div className="space-y-6">
+                    <div className="inline-flex items-center gap-4 mb-2">
+                      <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+                      <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Nasza historia</span>
+                      <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+                    </div>
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+                      Gdzie tradycja<br /><span className="italic">spotyka śmiałość</span>
+                    </h3>
+                    <p className="text-base leading-relaxed" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
+                      La Maison Dorée powstała z prostego przekonania: że wielka restauracja to nie tylko to, co jest na talerzu, ale także historia, którą opowiada. Założona w 2018 roku przez Szefa Kuchni Juliena Moreau przy ulicy Nowy Świat w Warszawie, łączy dyscyplinę klasycznej francuskiej techniki z wolnością nowoczesnej inwencji.
+                    </p>
+                    <p className="text-base leading-relaxed" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
+                      Każdego wieczoru przyjmujemy nie więcej niż czterdzieścioro gości w przestrzeni inspirowanej paryskimi salonami lat 20. XX wieku — kameralnej, spokojnej i zaprojektowanej tak, abyś zapomniał o mieście na zewnątrz.
+                    </p>
+                    <blockquote className="border-l-2 pl-6 py-2 mt-4" style={{ borderColor: C.gold }}>
+                      <p className="text-lg italic" style={{ fontFamily: C.serif, fontWeight: 400, color: "rgba(243,239,234,0.85)" }}>
+                        "Gotowanie to pamięć. Każde danie, które podaję, nosi w sobie miejsce, osobę, chwilę, której nigdy nie chcę zapomnieć."
+                      </p>
+                      <cite className="text-sm not-italic block mt-3" style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold }}>
+                        — Chef Julien Moreau
+                      </cite>
+                    </blockquote>
+                  </div>
+                </motion.div>
+              )}
+
+              {storyTab === "szef" && (
+                <motion.div
+                  key="szef"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -16 }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center"
+                >
+                  <div className="space-y-6 order-2 lg:order-1">
+                    <div className="inline-flex items-center gap-4 mb-2">
+                      <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+                      <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Szef kuchni</span>
+                      <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+                    </div>
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+                      Julien <span className="italic">Moreau</span>
+                    </h3>
+                    <p className="text-base leading-relaxed" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
+                      Urodzony w Lyonie, szkolony pod okiem Alaina Ducasse'a i Anne-Sophie Pic, Julien Moreau spędził dekadę w restauracjach z gwiazdkami Michelin w Paryżu, Tokio i Kopenhadze, zanim w wieku 34 lat otworzył La Maison Dorée.
+                    </p>
+                    <p className="text-base leading-relaxed" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
+                      Jego kuchnia zakorzeniona jest w kanonie francuskim, ale kształtowana przez niespokojną ciekawość — japońska precyzja, nordycki minimalizm i filozofia farm-to-table odnajdują drogę na talerzu.
+                    </p>
+                    <div className="flex flex-wrap gap-4 pt-4">
+                      {["Michelin ★ 2021", "Gault & Millau 16/20", "Najlepszy nowy szef — Le Figaro 2019"].map((badge) => (
+                        <span
+                          key={badge}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs uppercase tracking-wider"
+                          style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold, backgroundColor: "rgba(182,138,58,0.1)", border: "1px solid rgba(182,138,58,0.25)" }}
+                        >
+                          <Award size={14} />
+                          {badge}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="order-1 lg:order-2 rounded-2xl overflow-hidden" style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.4)" }}>
+                    <img
+                      src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800&q=80"
+                      alt="Chef Julien Moreau in the kitchen"
+                      className="w-full h-[220px] sm:h-[240px] lg:h-[480px] object-cover"
+                      loading="lazy"
+                      style={{ filter: "brightness(0.85)" }}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Photo */}
-          <div className="order-1 lg:order-2 rounded-2xl overflow-hidden" style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.4)" }}>
-            <img
-              src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800&q=80"
-              alt="Chef Julien Moreau in the kitchen"
-              className="w-full h-[220px] sm:h-[240px] lg:h-[520px] object-cover"
-              loading="lazy"
-              style={{ filter: "brightness(0.85)" }}
-            />
+          {/* Progress dots */}
+          <div className="mt-6 flex justify-center gap-6">
+            {([
+              { id: "historia", label: "01" },
+              { id: "szef",     label: "02" },
+            ] as const).map(({ id, label }) => (
+              <button key={id} onClick={() => setStoryTab(id)} className="group flex flex-col items-center gap-2 cursor-pointer">
+                <div
+                  className="h-px transition-all duration-500"
+                  style={{ width: storyTab === id ? "3rem" : "1.5rem", backgroundColor: storyTab === id ? C.gold : `${C.gold}26` }}
+                />
+                <span className="text-[10px] tracking-[0.2em] transition-colors duration-500" style={{ fontFamily: C.sans, color: storyTab === id ? C.gold : "rgba(243,239,234,0.2)" }}>
+                  {label}
+                </span>
+              </button>
+            ))}
           </div>
+
         </div>
       </section>
 
@@ -1124,132 +1098,157 @@ export function LandingPage() {
       <ExperienceSection />
 
       {/* ═══════════════════════ 5. SEASONAL TASTING MENU ═══════════════════════ */}
-      <section id="tasting" className="relative py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
-        {/* Corner accents */}
-        <div className="absolute top-12 left-12 w-20 h-20 hidden lg:block" style={{ borderTop: "1px solid rgba(182,138,58,0.1)", borderLeft: "1px solid rgba(182,138,58,0.1)" }} />
-        <div className="absolute bottom-12 right-12 w-20 h-20 hidden lg:block" style={{ borderBottom: "1px solid rgba(182,138,58,0.1)", borderRight: "1px solid rgba(182,138,58,0.1)" }} />
+      {(() => {
+        const DISHES = [
+          { number: "I",   name: "Amuse-bouche",          description: "Tatarak z łososia ze szczypiorkiem i kawiorem, galaretka cytrynowa",        img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=800&q=80" },
+          { number: "II",  name: "Foie gras poêlé",       description: "Pieczona foie gras z chutney z fig, brioche i redukcją balsamiczną",         img: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=800&q=80" },
+          { number: "III", name: "Velouté de champignons",description: "Kremowy krem z leśnych grzybów z oliwą truflową",                            img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80" },
+          { number: "IV",  name: "Saint-Jacques rôties",  description: "Przegrzebki z purée z topinamburu, pancetta i masłem szałwiowym",            img: "https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?w=800&q=80" },
+          { number: "V",   name: "Carré d'agneau",        description: "Sezonowane mięso jagnięce z rozmarynem, gratin dauphinois",                  img: "https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800&q=80" },
+          { number: "VI",  name: "Plateau de fromages",   description: "Wybór francuskich serów z miodem truflowym i orzechami",                     img: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=800&q=80" },
+          { number: "VII", name: "Tarte Tatin revisitée", description: "Autorska wersja klasyki z jabłkami karmelizowanymi, lody waniliowe",         img: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&q=80" },
+        ];
+        const dish = DISHES[activeDish];
+        return (
+          <section id="tasting" className="relative py-24 md:py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
 
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 relative z-10">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-20"
-          >
-            <div className="inline-flex items-center gap-4 mb-8">
-              <div className="h-px w-8" style={{ backgroundColor: "rgba(182,138,58,0.5)" }} />
-              <span className="text-xs tracking-[0.4em] uppercase" style={{ fontFamily: C.sans, color: C.gold }}>
-                Sezon wiosenny 2026
-              </span>
-              <div className="h-px w-8" style={{ backgroundColor: "rgba(182,138,58,0.5)" }} />
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl leading-[0.95] mb-6" style={{ fontFamily: C.serif, color: C.cream }}>
-              Menu<br />
-              <span className="italic">Degustacyjne</span>
-            </h2>
-            <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
-              Siedem dań, które opowiadają historię. Sezonowe składniki i tradycyjne techniki francuskiej kuchni.
-            </p>
-          </motion.div>
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+              {/* Header */}
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="text-center mb-16 md:mb-20">
+                <div className="inline-flex items-center gap-4 mb-6">
+                  <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+                  <span className="text-xs tracking-[0.4em] uppercase" style={{ fontFamily: C.sans, color: C.gold }}>Sezon wiosenny 2026</span>
+                  <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+                </div>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+                  Menu<br /><span className="italic">Degustacyjne</span>
+                </h2>
+              </motion.div>
 
-          {/* Dishes — alternating layout */}
-          <div className="space-y-0">
-            {[
-              { number: "I",   name: "Amuse-bouche",          description: "Tatarak z łososia ze szczypiorkiem i kawiorem, galaretka cytrynowa",           img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80" },
-              { number: "II",  name: "Foie gras poêlé",       description: "Pieczona foie gras z chutney z fig, brioche i redukcją balsamiczną",            img: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&q=80" },
-              { number: "III", name: "Velouté de champignons",description: "Kremowy krem z leśnych grzybów z oliwą truflową",                               img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80" },
-              { number: "IV",  name: "Saint-Jacques rôties",  description: "Przegrzebki z purée z topinamburu, pancetta i masłem szałwiowym",               img: "https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?w=400&q=80" },
-              { number: "V",   name: "Carré d'agneau",        description: "Sezonowane mięso jagnięce z rozmarynem, gratin dauphinois",                     img: "https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&q=80" },
-              { number: "VI",  name: "Plateau de fromages",   description: "Wybór francuskich serów z miodem truflowym i orzechami",                        img: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=400&q=80" },
-              { number: "VII", name: "Tarte Tatin revisitée", description: "Autorska wersja klasyki z jabłkami karmelizowanymi, lody waniliowe",            img: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&q=80" },
-            ].map((dish, index) => (
-              <motion.div
-                key={dish.number}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
-                className="group relative first:border-t"
-                style={{ borderBottom: "1px solid rgba(182,138,58,0.1)" }}
-              >
-                <div className={`flex items-center gap-6 md:gap-10 py-7 md:py-8 px-4 md:px-8 transition-all duration-500 ${index % 2 === 1 ? "md:flex-row-reverse" : ""}`}>
-                  {/* Number */}
-                  <div className="hidden md:flex items-center justify-center w-16 flex-shrink-0">
-                    <span className="text-4xl transition-colors duration-500 group-hover:opacity-50" style={{ fontFamily: C.serif, color: "rgba(182,138,58,0.2)" }}>
-                      {dish.number}
-                    </span>
-                  </div>
-                  {/* Image */}
-                  <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl overflow-hidden flex-shrink-0 transition-all duration-500 group-hover:shadow-[0_0_30px_rgba(182,138,58,0.1)]" style={{ border: "1px solid rgba(182,138,58,0.1)" }}>
-                    <img src={dish.img} alt={dish.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                  </div>
-                  {/* Text */}
-                  <div className={`flex-1 min-w-0 ${index % 2 === 1 ? "md:text-right" : ""}`}>
-                    <div className={`flex items-baseline gap-3 mb-2 ${index % 2 === 1 ? "md:justify-end" : ""}`}>
-                      <span className="text-xs tracking-widest md:hidden" style={{ fontFamily: C.sans, color: "rgba(182,138,58,0.3)" }}>{dish.number}</span>
-                      <h3 className="text-xl md:text-2xl transition-colors duration-500 group-hover:text-[#B68A3A]" style={{ fontFamily: C.serif, color: C.cream }}>
-                        {dish.name}
-                      </h3>
+              {/* Main content: list left + blob right */}
+              <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
+
+                {/* Left — dish list */}
+                <div className="flex-1 min-w-0">
+                  {DISHES.map((d, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: i * 0.06 }}
+                      onClick={() => setActiveDish(i)}
+                      className="group flex items-center gap-6 py-5 cursor-pointer relative"
+                      style={{ borderBottom: "1px solid rgba(182,138,58,0.08)" }}
+                    >
+                      {/* Active indicator bar */}
+                      <motion.div
+                        className="absolute left-0 top-0 bottom-0 w-px"
+                        animate={{ opacity: activeDish === i ? 1 : 0, scaleY: activeDish === i ? 1 : 0 }}
+                        style={{ backgroundColor: C.gold, originY: 0 }}
+                        transition={{ duration: 0.3 }}
+                      />
+                      {/* Number */}
+                      <span
+                        className="w-12 flex-shrink-0 text-right transition-all duration-300"
+                        style={{ fontFamily: C.serif, fontSize: 13, letterSpacing: "0.15em", color: activeDish === i ? C.gold : "rgba(182,138,58,0.25)" }}
+                      >
+                        {d.number}
+                      </span>
+                      {/* Name + description */}
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className="transition-all duration-300 leading-tight"
+                          style={{ fontFamily: C.serif, fontSize: activeDish === i ? 22 : 18, color: activeDish === i ? C.cream : "rgba(243,239,234,0.4)", fontWeight: 300 }}
+                        >
+                          {d.name}
+                        </p>
+                        <motion.p
+                          animate={{ height: activeDish === i ? "auto" : 0, opacity: activeDish === i ? 1 : 0 }}
+                          transition={{ duration: 0.35 }}
+                          className="overflow-hidden text-sm leading-relaxed mt-1"
+                          style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.5)", fontWeight: 300 }}
+                        >
+                          {d.description}
+                        </motion.p>
+                      </div>
+                      {/* Arrow */}
+                      <motion.div
+                        animate={{ opacity: activeDish === i ? 1 : 0, x: activeDish === i ? 0 : -8 }}
+                        transition={{ duration: 0.25 }}
+                        className="flex-shrink-0"
+                      >
+                        <ArrowRight size={16} style={{ color: C.gold }} />
+                      </motion.div>
+                    </motion.div>
+                  ))}
+
+                  {/* Price */}
+                  <div className="mt-10 flex items-end justify-between">
+                    <div style={{ paddingLeft: '1.5rem' }}>
+                      <p className="text-4xl font-light" style={{ fontFamily: C.serif, color: C.gold }}>
+                        498 zł <span className="text-base" style={{ color: "rgba(182,138,58,0.55)" }}>/ osoba</span>
+                      </p>
+                      <p className="text-xs mt-1" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.35)" }}>Dobór win +268 zł</p>
                     </div>
-                    <p className="text-sm md:text-base leading-relaxed" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.55)" }}>
-                      {dish.description}
-                    </p>
+                    <div className="group inline-block">
+                      <button
+                        onClick={() => navigate("/reserve")}
+                        className="relative px-8 py-3 overflow-hidden rounded-full text-xs tracking-[0.2em] text-[#B68A3A] group-hover:text-[#0E1714] transition-colors duration-500 cursor-pointer"
+                        style={{ border: `1px solid ${C.gold}`, fontFamily: C.sans }}
+                      >
+                        <span className="absolute inset-0 z-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" style={{ backgroundColor: C.gold }} />
+                        <span className="relative z-10 flex items-center gap-2">ZAREZERWUJ <ArrowRight size={14} /></span>
+                      </button>
+                    </div>
                   </div>
-                  {/* Hover arrow */}
-                  <div className="hidden md:flex items-center flex-shrink-0">
-                    <motion.div animate={{ opacity: 0, x: -10 }} whileHover={{ opacity: 1, x: 0 }} className="group-hover:opacity-100">
-                      <ArrowRight size={20} style={{ color: "rgba(182,138,58,0.5)" }} />
+                </div>
+
+                {/* Right — blob image */}
+                <div className="lg:w-[420px] flex-shrink-0 hidden lg:flex items-start justify-center pt-4">
+                  <div className="relative w-full" style={{ aspectRatio: "1" }}>
+                    {/* Blob image */}
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={activeDish}
+                        className="absolute inset-0 overflow-hidden shadow-2xl"
+                        style={{ borderRadius: "40% 60% 70% 30% / 60% 30% 70% 40%", border: `2.5px solid ${C.gold}` }}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 1.03 }}
+                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                      >
+                        <img src={dish.img} alt={dish.name} className="w-full h-full object-cover" style={{ filter: "brightness(0.82)" }} />
+                      </motion.div>
+                    </AnimatePresence>
+                    {/* Dashed ring */}
+                    <div className="absolute rounded-full" style={{ inset: -18, border: `2px dashed ${C.gold}`, opacity: 0.35 }} />
+                    {/* Course badge */}
+                    <motion.div
+                      key={`badge-${activeDish}`}
+                      className="absolute -bottom-8 -right-8 rounded-full shadow-2xl"
+                      style={{
+                        backgroundColor: "#0a1612",
+                        border: `1.5px solid ${C.gold}`,
+                        transform: "rotate(45deg)",
+                        padding: "20px 14px",
+                      }}
+                      initial={{ scale: 0.7, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.4, delay: 0.1 }}
+                    >
+                      <div className="text-center">
+                        <span style={{ fontFamily: C.serif, color: C.gold, fontSize: 18, fontWeight: 300 }}>{dish.number}</span>
+                      </div>
                     </motion.div>
                   </div>
                 </div>
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" style={{ backgroundColor: "rgba(182,138,58,0.02)" }} />
-              </motion.div>
-            ))}
-          </div>
 
-          {/* FIN */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="flex items-center justify-center gap-4 mt-16 mb-16"
-          >
-            <div className="h-px w-16" style={{ background: "linear-gradient(to right, transparent, rgba(182,138,58,0.3))" }} />
-            <span className="text-xs tracking-[0.4em]" style={{ fontFamily: C.sans, color: "rgba(182,138,58,0.3)" }}>FIN</span>
-            <div className="h-px w-16" style={{ background: "linear-gradient(to left, transparent, rgba(182,138,58,0.3))" }} />
-          </motion.div>
-
-          {/* Price & CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <p className="text-4xl md:text-5xl mb-2" style={{ fontFamily: C.serif, color: C.cream }}>
-              498 zł <span className="text-lg" style={{ color: "rgba(243,239,234,0.4)" }}>/ osoba</span>
-            </p>
-            <p className="text-sm mb-10" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.4)" }}>
-              Dopasowanie win +268 zł
-            </p>
-            <div className="group inline-block">
-              <button
-                onClick={() => navigate("/reserve")}
-                className="relative px-10 py-4 overflow-hidden rounded-full text-xs tracking-[0.2em] text-[#B68A3A] group-hover:text-[#0E1714] transition-colors duration-500"
-                style={{ border: `1px solid ${C.gold}`, fontFamily: C.sans }}
-              >
-                <span className="absolute inset-0 z-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" style={{ backgroundColor: C.gold }} />
-                <span className="relative z-10 flex items-center gap-3 text-[10px] sm:text-xs">
-                  ZAREZERWUJ DEGUSTACJĘ
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
-              </button>
+              </div>
             </div>
-          </motion.div>
-        </div>
-      </section>
+          </section>
+        );
+      })()}
 
       {/* ═══════════════════════ 6. MENU HIGHLIGHTS ═══════════════════════ */}
       <section ref={menuSectionRef} id="menu" className="relative px-6 md:px-12 py-24 md:py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
@@ -1267,15 +1266,16 @@ export function LandingPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.05 + i * 0.05 }}
+                  whileHover={{ y: -8 }}
                 >
                   <div
                     className="rounded-2xl p-4 sm:p-5 cursor-pointer"
                     onClick={() => setSelectedCat(selectedCat === i ? null : i)}
                     style={{
-                      backgroundColor: C.card,
-                      border: isActive ? `1px solid ${C.gold}` : "1px solid rgba(182,138,58,0.2)",
-                      boxShadow: isActive ? "0 8px 32px rgba(182,138,58,0.2)" : "0 8px 32px rgba(0,0,0,0.4)",
-                      transition: "border 0.25s, box-shadow 0.25s",
+                      backgroundColor: C.dark,
+                      border: `1.5px solid ${C.gold}`,
+                      boxShadow: isActive ? "0 12px 40px rgba(182,138,58,0.25)" : "0 8px 32px rgba(182,138,58,0.1)",
+                      transition: "box-shadow 0.25s",
                     }}
                   >
                     <div className="flex items-start justify-between mb-2">
@@ -1283,7 +1283,7 @@ export function LandingPage() {
                         {cat.name}
                       </h3>
                       <motion.button
-                        className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                        className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer"
                         style={{ backgroundColor: C.gold }}
                         onClick={(e) => { e.stopPropagation(); navigate("/menu", { state: { category: cat.menuCategory } }); }}
                         aria-label={`Przejdź do ${cat.name}`}
@@ -1337,16 +1337,16 @@ export function LandingPage() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.1 + i * 0.1 }}
-                    whileHover={{ scale: 1.03 }}
+                    whileHover={{ y: -8 }}
                   >
                     <div
                       className="rounded-2xl p-6 cursor-pointer"
                       onClick={() => setSelectedCat(selectedCat === i ? null : i)}
                       style={{
-                        backgroundColor: C.card,
-                        border: isActive ? `1px solid ${C.gold}` : "1px solid rgba(182,138,58,0.2)",
-                        boxShadow: isActive ? "0 8px 32px rgba(182,138,58,0.2)" : "0 8px 32px rgba(0,0,0,0.4)",
-                        transition: "border 0.25s, box-shadow 0.25s",
+                        backgroundColor: C.dark,
+                        border: `1.5px solid ${C.gold}`,
+                        boxShadow: isActive ? "0 12px 40px rgba(182,138,58,0.25)" : "0 8px 32px rgba(182,138,58,0.1)",
+                        transition: "box-shadow 0.25s",
                       }}
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -1354,7 +1354,7 @@ export function LandingPage() {
                           {cat.name}
                         </h3>
                         <motion.button
-                          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer"
                           style={{ backgroundColor: C.gold }}
                           whileHover={{ rotate: 45 }}
                           onClick={(e) => { e.stopPropagation(); navigate("/menu", { state: { category: cat.menuCategory } }); }}
@@ -1406,7 +1406,7 @@ export function LandingPage() {
             >
               <div
                 className="absolute inset-0 overflow-hidden shadow-2xl"
-                style={{ borderRadius: "40% 60% 70% 30% / 60% 30% 70% 40%", border: `6px solid ${C.gold}` }}
+                style={{ borderRadius: "40% 60% 70% 30% / 60% 30% 70% 40%", border: `2.5px solid ${C.gold}` }}
               >
                 <AnimatePresence mode="wait">
                   <motion.img
@@ -1422,11 +1422,9 @@ export function LandingPage() {
                   />
                 </AnimatePresence>
               </div>
-              <motion.div
+              <div
                 className="absolute rounded-full"
                 style={{ inset: -18, border: `2px dashed ${C.gold}`, opacity: 0.35 }}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
               />
             </motion.div>
 
@@ -1442,16 +1440,16 @@ export function LandingPage() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.1 + i * 0.1 }}
-                    whileHover={{ scale: 1.03 }}
+                    whileHover={{ y: -8 }}
                   >
                     <div
                       className="rounded-2xl p-6 cursor-pointer"
                       onClick={() => setSelectedCat(selectedCat === realIdx ? null : realIdx)}
                       style={{
-                        backgroundColor: C.card,
-                        border: isActive ? `1px solid ${C.gold}` : "1px solid rgba(182,138,58,0.2)",
-                        boxShadow: isActive ? "0 8px 32px rgba(182,138,58,0.2)" : "0 8px 32px rgba(0,0,0,0.4)",
-                        transition: "border 0.25s, box-shadow 0.25s",
+                        backgroundColor: C.dark,
+                        border: `1.5px solid ${C.gold}`,
+                        boxShadow: isActive ? "0 12px 40px rgba(182,138,58,0.25)" : "0 8px 32px rgba(182,138,58,0.1)",
+                        transition: "box-shadow 0.25s",
                       }}
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -1459,7 +1457,7 @@ export function LandingPage() {
                           {cat.name}
                         </h3>
                         <motion.button
-                          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer"
                           style={{ backgroundColor: C.gold }}
                           whileHover={{ rotate: 45 }}
                           onClick={(e) => { e.stopPropagation(); navigate("/menu", { state: { category: cat.menuCategory } }); }}
@@ -1503,7 +1501,19 @@ export function LandingPage() {
           </div>
 
           <div className="text-center">
-            <GoldButton variant="outline" onClick={() => navigate("/menu")}>PEŁNE MENU</GoldButton>
+            <div className="group inline-block">
+              <button
+                onClick={() => navigate("/menu")}
+                className="relative px-10 py-4 overflow-hidden rounded-full text-xs tracking-[0.2em] text-[#B68A3A] group-hover:text-[#0E1714] transition-colors duration-500 cursor-pointer"
+                style={{ border: `1px solid ${C.gold}`, fontFamily: C.sans }}
+              >
+                <span className="absolute inset-0 z-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" style={{ backgroundColor: C.gold }} />
+                <span className="relative z-10 flex items-center gap-3 text-[10px] sm:text-xs">
+                  PEŁNE MENU
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -1692,9 +1702,15 @@ export function LandingPage() {
                   </div>
                 </div>
                 {/* Image */}
-                <div className={`${step.align === "right" ? "md:col-start-1 md:row-start-1" : ""} relative overflow-hidden rounded-2xl shadow-2xl h-[200px] sm:h-[220px] md:h-[200px] lg:h-auto lg:aspect-[4/3]`}>
-                  <img src={step.img} alt={step.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.2), transparent, rgba(0,0,0,0.3))" }} />
+                <div className={`${step.align === "right" ? "md:col-start-1 md:row-start-1" : ""} relative h-[200px] sm:h-[220px] md:h-[200px] lg:h-auto lg:aspect-[4/3]`}>
+                  <div className="absolute -inset-4 blur-3xl opacity-10" style={{ background: "linear-gradient(135deg, #b68a3a, #d4a574)" }} />
+                  <div
+                    className="relative w-full h-full overflow-hidden shadow-2xl"
+                    style={{ borderRadius: index % 2 === 0 ? "40% 60% 65% 35% / 55% 35% 65% 45%" : "60% 40% 35% 65% / 45% 65% 35% 55%" }}
+                  >
+                    <img src={step.img} alt={step.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.2), transparent, rgba(0,0,0,0.3))" }} />
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -1707,105 +1723,145 @@ export function LandingPage() {
             viewport={{ once: true }}
             className="text-center mt-14 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <motion.button
-              onClick={() => navigate("/reserve")}
-              className="px-8 py-3 rounded-xl border border-[#B68A3A] bg-[#B68A3A] text-[#0a1612] hover:bg-transparent hover:text-[#B68A3A] transition-colors tracking-widest text-sm"
-              style={{ fontFamily: C.sans, fontWeight: 500 }}
-              whileHover={{ scale: 1.05, rotate: -1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              ZAREZERWUJ STOLIK
-            </motion.button>
-            <motion.button
-              onClick={() => window.location.href = "tel:+48223456789"}
-              className="px-8 py-3 rounded-xl border border-[#B68A3A] bg-transparent text-[#B68A3A] hover:bg-[#B68A3A] hover:text-[#0a1612] transition-colors tracking-widest text-sm"
-              style={{ fontFamily: C.sans, fontWeight: 500 }}
-              whileHover={{ scale: 1.05, rotate: -1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              ZADZWOŃ +48 22 345 67 89
-            </motion.button>
+            <div className="group inline-block">
+              <button
+                onClick={() => navigate("/reserve")}
+                className="relative px-8 py-3 rounded-full overflow-hidden border border-[#B68A3A] text-[#0a1612] group-hover:text-[#B68A3A] transition-colors duration-500 tracking-widest text-sm cursor-pointer"
+                style={{ fontFamily: C.sans, fontWeight: 500 }}
+              >
+                <span className="absolute inset-0 z-0 bg-[#B68A3A] translate-y-0 group-hover:translate-y-full transition-transform duration-500 ease-out" />
+                <span className="relative z-10">ZAREZERWUJ STOLIK</span>
+              </button>
+            </div>
+            <div className="group inline-block">
+              <button
+                onClick={() => window.location.href = "tel:+48223456789"}
+                className="relative px-8 py-3 rounded-full overflow-hidden border border-[#B68A3A] text-[#B68A3A] group-hover:text-[#0a1612] transition-colors duration-500 tracking-widest text-sm cursor-pointer"
+                style={{ fontFamily: C.sans, fontWeight: 500 }}
+              >
+                <span className="absolute inset-0 z-0 bg-[#B68A3A] translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
+                <span className="relative z-10">ZADZWOŃ +48 22 345 67 89</span>
+              </button>
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* ═══════════════════════ 11. PRIVATE EVENTS TEASER ═══════════════════════ */}
-      <section className="relative overflow-hidden" style={{ minHeight: "70vh", borderTop: "1px solid rgba(182,138,58,0.1)" }}>
-        {/* Background */}
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1600&q=80"
-            alt=""
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(14,23,20,0.5) 0%, rgba(14,23,20,0.75) 50%, rgba(14,23,20,0.95) 100%)" }} />
-        </div>
-
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-between h-full min-h-[70vh] px-6 md:px-12 py-20 max-w-6xl mx-auto">
-          {/* Top text */}
+      <section className="py-16 md:py-24 relative overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          {/* Header */}
           <motion.div
-            className="max-w-2xl"
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
+            className="text-center mb-14"
           >
-            <span className="inline-block text-sm uppercase tracking-[0.3em] mb-6" style={{ fontFamily: C.sans, color: C.gold }}>
-              Prywatne wydarzenia
-            </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-tight mb-6" style={{ fontFamily: C.serif, color: C.cream }}>
-              Wyłącznie<br />dla Ciebie
+            <div className="inline-flex items-center gap-4 mb-8">
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+              <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Prywatne wydarzenia</span>
+              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
+              Wyłącznie dla Ciebie
             </h2>
-            <p className="text-base leading-relaxed mb-8 max-w-lg" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.75)", lineHeight: 1.8 }}>
+            <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
               Od kameralnych kolacji biznesowych po wynajem całego lokalu — oferujemy bespoke private dining z dedykowanym Menadżerem Wydarzeń dla nawet 80 gości.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <motion.button
-                onClick={() => navigate("/private-events")}
-                className="px-8 py-3 rounded-xl border border-[#B68A3A] bg-[#B68A3A] text-[#0a1612] hover:bg-transparent hover:text-[#B68A3A] transition-colors tracking-widest text-sm"
-                style={{ fontFamily: C.sans, fontWeight: 500 }}
-                whileHover={{ scale: 1.05, rotate: -1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                ODKRYJ WYDARZENIA
-              </motion.button>
-              <motion.button
-                onClick={() => window.location.href = "tel:+48223456789"}
-                className="px-8 py-3 rounded-xl border border-[#B68A3A] bg-transparent text-[#B68A3A] hover:bg-[#B68A3A] hover:text-[#0a1612] transition-colors tracking-widest text-sm"
-                style={{ fontFamily: C.sans, fontWeight: 500 }}
-                whileHover={{ scale: 1.05, rotate: -1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                ZADZWOŃ DO NAS
-              </motion.button>
-            </div>
           </motion.div>
 
-          {/* Bottom stats strip */}
-          <motion.div
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            {[
-              { cap: "Do 20", label: "Salon prywatny" },
-              { cap: "Do 80", label: "Wynajem całości" },
-              { cap: "W cenie", label: "AV i technologia" },
-              { cap: "Dedykowany", label: "Menadżer Wydarzeń" },
-            ].map((item, i) => (
+          {/* Two-column layout */}
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center mb-12">
+            {/* Image */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+              className="relative aspect-[4/3]"
+            >
+              {/* Glow */}
+              <div className="absolute -inset-6 blur-3xl opacity-15" style={{ background: "linear-gradient(135deg, #b68a3a, #d4a574)" }} />
+              {/* Blob image */}
               <div
-                key={i}
-                className="rounded-xl p-5 text-center"
-                style={{ backgroundColor: "rgba(14,23,20,0.7)", border: "1px solid rgba(182,138,58,0.2)", backdropFilter: "blur(12px)" }}
+                className="relative w-full h-full overflow-hidden shadow-2xl"
+                style={{ borderRadius: "40% 60% 65% 35% / 55% 35% 65% 45%" }}
               >
-                <p className="text-xl font-light mb-1" style={{ fontFamily: C.serif, color: C.gold }}>{item.cap}</p>
-                <p className="text-xs uppercase tracking-wider" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.5)" }}>{item.label}</p>
+                <img
+                  src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1000&q=80"
+                  alt="Prywatna sala"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.15), transparent, rgba(0,0,0,0.3))" }} />
               </div>
-            ))}
-          </motion.div>
+              {/* Floating badge */}
+              <motion.div
+                className="absolute -bottom-2 -right-2 px-5 py-3 shadow-xl"
+                style={{ backgroundColor: C.gold, transform: "rotate(-4deg)", borderRadius: "4px" }}
+                whileHover={{ rotate: -7, scale: 1.08 }}
+              >
+                <p className="text-xs opacity-70 mb-0.5" style={{ fontFamily: C.sans, color: "#0a1612" }}>Do</p>
+                <p className="text-2xl font-light leading-none" style={{ fontFamily: C.serif, color: "#0a1612" }}>80 gości</p>
+              </motion.div>
+            </motion.div>
+
+            {/* Text & stats */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="space-y-8"
+            >
+              {/* Stats grid */}
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { cap: "Do 20", label: "Salon prywatny" },
+                  { cap: "Do 80", label: "Wynajem całości" },
+                  { cap: "W cenie", label: "AV i technologia" },
+                  { cap: "Dedykowany", label: "Menadżer Wydarzeń" },
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.15 + i * 0.08 }}
+                    className="rounded-xl p-5 text-center"
+                    style={{ backgroundColor: C.card, border: "1px solid rgba(182,138,58,0.15)" }}
+                  >
+                    <p className="text-2xl font-light mb-1" style={{ fontFamily: C.serif, color: C.gold }}>{item.cap}</p>
+                    <p className="text-xs uppercase tracking-wider" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.5)" }}>{item.label}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="group inline-block">
+                  <button
+                    onClick={() => navigate("/private-events")}
+                    className="relative px-8 py-3 rounded-full overflow-hidden border border-[#B68A3A] text-[#0a1612] group-hover:text-[#B68A3A] transition-colors duration-500 tracking-widest text-sm cursor-pointer"
+                    style={{ fontFamily: C.sans, fontWeight: 500 }}
+                  >
+                    <span className="absolute inset-0 z-0 bg-[#B68A3A] translate-y-0 group-hover:translate-y-full transition-transform duration-500 ease-out" />
+                    <span className="relative z-10">ODKRYJ WYDARZENIA</span>
+                  </button>
+                </div>
+                <div className="group inline-block">
+                  <button
+                    onClick={() => window.location.href = "tel:+48223456789"}
+                    className="relative px-8 py-3 rounded-full overflow-hidden border border-[#B68A3A] text-[#B68A3A] group-hover:text-[#0a1612] transition-colors duration-500 tracking-widest text-sm cursor-pointer"
+                    style={{ fontFamily: C.sans, fontWeight: 500 }}
+                  >
+                    <span className="absolute inset-0 z-0 bg-[#B68A3A] translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
+                    <span className="relative z-10">ZADZWOŃ DO NAS</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -1886,7 +1942,7 @@ export function LandingPage() {
                   href="https://www.google.com/maps/search/?api=1&query=ul.+Nowy+%C5%9Awiat+42+00-363+Warszawa"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-8 py-3 rounded-lg transition-all duration-200"
+                  className="inline-flex items-center gap-2 px-8 py-3 rounded-lg transition-all duration-200 cursor-pointer"
                   style={{
                     fontFamily: C.sans,
                     fontWeight: 500,
@@ -1946,78 +2002,119 @@ export function LandingPage() {
       </section>
 
       {/* ═══════════════════════ 13. NEWSLETTER ═══════════════════════ */}
-      <section className="relative py-24 md:py-32 overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
-        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="space-y-6"
-          >
-            <div className="inline-flex items-center gap-4 mb-8">
-              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
-              <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Newsletter</span>
-              <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light leading-[0.95]" style={{ fontFamily: C.serif, color: C.cream }}>
-              Pozostań w kontakcie
-            </h2>
-            <p className="text-base max-w-2xl mx-auto leading-relaxed mt-6" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)" }}>
-              Ogłoszenia o sezonowych menu, zaproszenia na ekskluzywne wydarzenia i specjalne oferty —
-              wysyłane dyskretnie, nie częściej niż dwa razy w miesiącu.
-            </p>
+      <section className="py-16 md:py-24 relative overflow-hidden" style={{ backgroundColor: C.dark, borderTop: "1px solid rgba(182,138,58,0.1)" }}>
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-            {emailSent ? (
-              <motion.p
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="py-4 text-base"
-                style={{ fontFamily: C.sans, fontWeight: 500, color: C.gold }}
-              >
-                Dziękujemy — jesteś na liście.
-              </motion.p>
-            ) : (
-              <form
-                onSubmit={(e) => { e.preventDefault(); if (email.includes("@")) setEmailSent(true); }}
-                className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mt-8"
-              >
-                <div className="relative flex-1">
-                  <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: C.gold, opacity: 0.6 }} />
-                  <input
-                    type="email"
-                    required
-                    placeholder="twój@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-11 pr-5 py-4 rounded-2xl text-sm outline-none transition-all duration-200"
-                    style={{
-                      fontFamily: C.sans,
-                      backgroundColor: "rgba(243,239,234,0.06)",
-                      color: C.cream,
-                      border: "1px solid rgba(182,138,58,0.25)",
-                    }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = C.gold)}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(182,138,58,0.25)")}
-                  />
-                </div>
-                <motion.button
-                  type="submit"
-                  className="px-7 py-4 rounded-2xl flex items-center justify-center gap-2 text-sm font-medium"
-                  style={{ fontFamily: C.sans, backgroundColor: C.gold, color: "#0a1612", letterSpacing: "0.08em" }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  <Send size={14} />
-                  SUBSKRYBUJ
-                </motion.button>
-              </form>
-            )}
+            {/* Left — text */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+            >
+              <div className="inline-flex items-center gap-4 mb-8">
+                <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+                <span className="text-xs tracking-[0.4em] uppercase" style={{ color: C.gold, fontFamily: C.sans }}>Newsletter</span>
+                <div className="h-px w-8" style={{ backgroundColor: `${C.gold}80` }} />
+              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-light leading-[0.95] mb-6" style={{ fontFamily: C.serif, color: C.cream }}>
+                Pozostań<br />w kontakcie
+              </h2>
+              <p className="text-base leading-relaxed mb-8" style={{ fontFamily: C.sans, fontWeight: 300, color: "rgba(243,239,234,0.6)", lineHeight: 1.8 }}>
+                Wysyłamy dyskretnie, nie częściej niż dwa razy w miesiącu.
+              </p>
+              <ul className="space-y-4">
+                {[
+                  { icon: <Utensils size={15} />, text: "Pierwsze spojrzenie na sezonowe menu" },
+                  { icon: <CalendarDays size={15} />, text: "Zaproszenia na ekskluzywne wydarzenia" },
+                  { icon: <Star size={15} />, text: "Specjalne oferty tylko dla subskrybentów" },
+                ].map((item, i) => (
+                  <motion.li
+                    key={i}
+                    initial={{ opacity: 0, x: -15 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
+                    className="flex items-center gap-3"
+                  >
+                    <span style={{ color: C.gold }}>{item.icon}</span>
+                    <span className="text-sm" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.65)" }}>{item.text}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
 
-            <p className="text-xs" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.3)" }}>
-              Szanujemy Twoją prywatność. Możesz zrezygnować w każdej chwili.
-            </p>
-          </motion.div>
+            {/* Right — form card */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="relative"
+            >
+              {/* Glow */}
+              <div className="absolute -inset-6 blur-3xl opacity-10" style={{ background: "linear-gradient(135deg, #b68a3a, #d4a574)" }} />
+              <div className="relative rounded-2xl p-8" style={{ backgroundColor: C.card, border: "1px solid rgba(182,138,58,0.2)" }}>
+                {emailSent ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center py-8"
+                  >
+                    <Heart size={40} style={{ color: C.gold }} className="mx-auto mb-4" />
+                    <p className="text-xl mb-2" style={{ fontFamily: C.serif, color: C.cream }}>Dziękujemy</p>
+                    <p className="text-sm" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.5)" }}>Jesteś teraz na naszej liście.</p>
+                  </motion.div>
+                ) : (
+                  <>
+                    <p className="text-sm mb-6" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.5)", letterSpacing: "0.02em" }}>
+                      Dołącz do grona naszych gości
+                    </p>
+                    <form
+                      onSubmit={(e) => { e.preventDefault(); if (email.includes("@")) setEmailSent(true); }}
+                      className="space-y-4"
+                    >
+                      <div className="relative">
+                        <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: C.gold, opacity: 0.6 }} />
+                        <input
+                          type="email"
+                          required
+                          placeholder="twój@email.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="w-full pl-11 pr-5 py-4 rounded-xl text-sm outline-none transition-all duration-200"
+                          style={{
+                            fontFamily: C.sans,
+                            backgroundColor: "rgba(243,239,234,0.05)",
+                            color: C.cream,
+                            border: "1px solid rgba(182,138,58,0.2)",
+                          }}
+                          onFocus={(e) => (e.currentTarget.style.borderColor = C.gold)}
+                          onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(182,138,58,0.2)")}
+                        />
+                      </div>
+                      <div className="group">
+                        <button
+                          type="submit"
+                          className="relative w-full py-4 rounded-full overflow-hidden border border-[#B68A3A] text-[#0a1612] group-hover:text-[#B68A3A] transition-colors duration-500 flex items-center justify-center gap-2 text-sm font-medium cursor-pointer tracking-widest"
+                          style={{ fontFamily: C.sans }}
+                        >
+                          <span className="absolute inset-0 z-0 bg-[#B68A3A] translate-y-0 group-hover:translate-y-full transition-transform duration-500 ease-out" />
+                          <Send size={14} className="relative z-10" />
+                          <span className="relative z-10">SUBSKRYBUJ</span>
+                        </button>
+                      </div>
+                    </form>
+                    <p className="text-xs mt-4 text-center" style={{ fontFamily: C.sans, color: "rgba(243,239,234,0.25)" }}>
+                      Szanujemy Twoją prywatność. Możesz zrezygnować w każdej chwili.
+                    </p>
+                  </>
+                )}
+              </div>
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
@@ -2048,7 +2145,7 @@ export function LandingPage() {
               ].map(({ icon: Icon, label }, index) => (
                 <motion.button
                   key={index}
-                  className="w-12 h-12 flex items-center justify-center rounded-lg transition-all"
+                  className="w-12 h-12 flex items-center justify-center rounded-lg transition-all cursor-pointer"
                   style={{ border: `1px solid ${C.gold}`, color: C.gold, backgroundColor: "transparent" }}
                   whileHover={{ scale: 1.2, rotate: 360, backgroundColor: C.gold, color: "#0a1612" }}
                   transition={{ duration: 0.3 }}
@@ -2079,33 +2176,26 @@ export function LandingPage() {
         >
           Gotowy na niezapomniany wieczór?
         </p>
-        <button
-          onClick={() => navigate("/reserve")}
-          className="px-6 py-2 rounded-lg transition-all duration-200 text-sm"
-          style={{
-            fontFamily: C.sans,
-            fontWeight: 500,
-            letterSpacing: "0.05em",
-            backgroundColor: C.gold,
-            color: "#1E1A16",
-          }}
-        >
-          ZAREZERWUJ
-        </button>
-        <a
-          href="tel:+48223456789"
-          className="px-6 py-2 rounded-lg transition-all duration-200 text-sm"
-          style={{
-            fontFamily: C.sans,
-            fontWeight: 500,
-            letterSpacing: "0.05em",
-            backgroundColor: "transparent",
-            color: C.gold,
-            border: "1px solid rgba(182,138,58,0.4)",
-          }}
-        >
-          ZADZWOŃ
-        </a>
+        <div className="group inline-block">
+          <button
+            onClick={() => navigate("/reserve")}
+            className="relative px-6 py-2 rounded-full overflow-hidden border border-[#B68A3A] text-[#0a1612] group-hover:text-[#B68A3A] transition-colors duration-500 text-sm cursor-pointer"
+            style={{ fontFamily: C.sans, fontWeight: 500, letterSpacing: "0.05em" }}
+          >
+            <span className="absolute inset-0 z-0 bg-[#B68A3A] translate-y-0 group-hover:translate-y-full transition-transform duration-500 ease-out" />
+            <span className="relative z-10">ZAREZERWUJ</span>
+          </button>
+        </div>
+        <div className="group inline-block">
+          <a
+            href="tel:+48223456789"
+            className="relative block px-6 py-2 rounded-full overflow-hidden border border-[#B68A3A] text-[#B68A3A] group-hover:text-[#0a1612] transition-colors duration-500 text-sm cursor-pointer"
+            style={{ fontFamily: C.sans, fontWeight: 500, letterSpacing: "0.05em" }}
+          >
+            <span className="absolute inset-0 z-0 bg-[#B68A3A] translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
+            <span className="relative z-10">ZADZWOŃ</span>
+          </a>
+        </div>
       </div>
 
       {/* ═══════════════════════ LIGHTBOX MODAL ═══════════════════════ */}
@@ -2117,7 +2207,7 @@ export function LandingPage() {
         >
           <button
             onClick={closeLightbox}
-            className="absolute top-6 right-6 p-2 rounded-full transition-colors duration-200"
+            className="absolute top-6 right-6 p-2 rounded-full transition-colors duration-200 cursor-pointer"
             style={{ color: C.cream, backgroundColor: "rgba(255,255,255,0.1)" }}
             aria-label="Close"
           >
@@ -2125,7 +2215,7 @@ export function LandingPage() {
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); prevImage(); }}
-            className="absolute left-4 md:left-8 p-3 rounded-full transition-colors duration-200"
+            className="absolute left-4 md:left-8 p-3 rounded-full transition-colors duration-200 cursor-pointer"
             style={{ color: C.cream, backgroundColor: "rgba(255,255,255,0.1)" }}
             aria-label="Previous"
           >
@@ -2133,7 +2223,7 @@ export function LandingPage() {
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); nextImage(); }}
-            className="absolute right-4 md:right-8 p-3 rounded-full transition-colors duration-200"
+            className="absolute right-4 md:right-8 p-3 rounded-full transition-colors duration-200 cursor-pointer"
             style={{ color: C.cream, backgroundColor: "rgba(255,255,255,0.1)" }}
             aria-label="Next"
           >
