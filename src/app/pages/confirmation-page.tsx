@@ -191,7 +191,7 @@ export function ConfirmationPage() {
                   <p className="text-xs uppercase tracking-wider mb-1" style={{ fontFamily: C.sans, fontWeight: 500, letterSpacing: "0.1em", color: C.gold }}>
                     Data
                   </p>
-                  <p className="text-base" style={{ fontFamily: C.serif, fontWeight: 400, color: C.cream }}>
+                  <p data-testid="confirmation-date" className="text-base" style={{ fontFamily: C.serif, fontWeight: 400, color: C.cream }}>
                     {formatDate(date)}
                   </p>
                 </div>
@@ -208,7 +208,7 @@ export function ConfirmationPage() {
                   <p className="text-xs uppercase tracking-wider mb-1" style={{ fontFamily: C.sans, fontWeight: 500, letterSpacing: "0.1em", color: C.gold }}>
                     Godzina
                   </p>
-                  <p className="text-base" style={{ fontFamily: C.serif, fontWeight: 400, color: C.cream }}>
+                  <p data-testid="confirmation-time" className="text-base" style={{ fontFamily: C.serif, fontWeight: 400, color: C.cream }}>
                     {time}
                   </p>
                 </div>

@@ -296,6 +296,8 @@ export function TableSelectionPage() {
                                   <circle
                               cx={cx} cy={cy} r={r}
                               fill="transparent"
+                              data-testid={`table-${table.number}`}
+                              data-disabled={isDisabled ? "true" : "false"}
                               style={{ cursor: isDisabled ? "not-allowed" : "pointer" }}
                               onMouseEnter={() => !isDisabled && setHoveredTable(table.id)}
                               onMouseLeave={() => setHoveredTable(null)}
@@ -305,6 +307,8 @@ export function TableSelectionPage() {
                                   <rect
                               x={table.x} y={table.y} width={table.width} height={table.height}
                               rx={10} fill="transparent"
+                              data-testid={`table-${table.number}`}
+                              data-disabled={isDisabled ? "true" : "false"}
                               style={{ cursor: isDisabled ? "not-allowed" : "pointer" }}
                               onMouseEnter={() => !isDisabled && setHoveredTable(table.id)}
                               onMouseLeave={() => setHoveredTable(null)}
@@ -393,6 +397,7 @@ export function TableSelectionPage() {
 
                   <button
                     onClick={handleReserve}
+                    data-testid="continue-to-guest-details"
                     className="w-full py-4 rounded-lg mt-8 flex items-center justify-center gap-2"
                     style={{ fontWeight: 500, fontFamily: C.sans, letterSpacing: "0.08em", backgroundColor: C.gold, color: "#1E1A16", boxShadow: "0 8px 24px rgba(182,138,58,0.3)", transition: "all 200ms ease-out" }}
                     onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(182,138,58,0.4)"; }}

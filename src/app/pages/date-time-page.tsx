@@ -227,6 +227,7 @@ export function DateTimePage() {
               <button
                 key={size}
                 onClick={() => setPartySize(size)}
+                data-testid={`party-size-${size}`}
                 className={`w-16 h-16 rounded-lg transition-all duration-300 ${
                   partySize === size
                     ? "bg-[#B68A3A] text-[#1E1A16]"
@@ -303,6 +304,7 @@ export function DateTimePage() {
                 <button
                   key={index}
                   onClick={() => setSelectedDate(date)}
+                  data-testid={`date-option-${index}`}
                   className={`flex-shrink-0 w-24 p-4 rounded-lg transition-all duration-300 ${
                     isSelected
                       ? "bg-[#B68A3A]"
@@ -382,6 +384,7 @@ export function DateTimePage() {
                 <button
                   key={slot.time}
                   onClick={() => setSelectedTime(slot.time)}
+                  data-testid={`time-slot-${slot.time}`}
                   className={`relative py-4 rounded-lg transition-all duration-300 ${
                     isSelected
                       ? "bg-[#B68A3A] text-[#1E1A16]"
@@ -449,6 +452,7 @@ export function DateTimePage() {
           </p>
           <button
             onClick={handleContinue}
+            data-testid="continue-to-tables"
             disabled={!selectedDate || !selectedTime}
             className="order-1 sm:order-2 flex items-center gap-2 px-10 py-4 rounded-lg transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{

@@ -1725,6 +1725,7 @@ export function LandingPage() {
           >
             <div className="group inline-block">
               <button
+                data-testid="hero-reserve-cta"
                 onClick={() => navigate("/reserve")}
                 className="relative px-8 py-3 rounded-full overflow-hidden border border-[#B68A3A] text-[#0a1612] group-hover:text-[#B68A3A] transition-colors duration-500 tracking-widest text-sm cursor-pointer"
                 style={{ fontFamily: C.sans, fontWeight: 500 }}

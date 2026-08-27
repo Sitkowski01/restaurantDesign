@@ -1,5 +1,7 @@
 # La Maison Dorée — strona restauracji z systemem rezerwacji
 
+[![CI](https://github.com/Sitkowski01/restaurantDesign/actions/workflows/ci.yml/badge.svg)](https://github.com/Sitkowski01/restaurantDesign/actions/workflows/ci.yml)
+
 Aplikacja webowa dla restauracji: strona prezentacyjna, pełny proces rezerwacji stolika
 oraz trzy rozbudowane panele operacyjne dla personelu — kelnera, menedżera i administratora,
 każdy z własnym zakresem uprawnień. Zbudowana w React i TypeScript, z backendem
@@ -60,13 +62,52 @@ rozbudowany widok — łącznie ponad 7 000 linii kodu.
 ## Uruchomienie
 
 ```bash
-npm i
+npm ci
 cp .env.example .env      # uzupełnij VITE_SUPABASE_PROJECT_ID i VITE_SUPABASE_ANON_KEY
-npm run dev
+npm run dev               # serwer deweloperski
+npm run build             # build produkcyjny do dist/
+npm run preview           # podgląd builda na http://localhost:4173
+npm run test:e2e          # testy end-to-end
 ```
 
 Klucze Supabase znajdziesz w panelu projektu, w **Settings → API**.
 W repozytorium nie ma żadnych sekretów — konfiguracja idzie wyłącznie przez zmienne środowiskowe.
+
+## Testy
+
+**30 testów end-to-end w Playwrighcie**, w dwóch konfiguracjach: Chromium na desktopie
+(cały zestaw) i Pixel 7 dla ścieżki krytycznej. Testy chodzą po **zbudowanej** aplikacji
+uruchomionej przez `vite preview` — po tej samej paczce, która trafia na produkcję,
+a nie po serwerze deweloperskim.
+
+```bash
+npm run test:e2e         # cały zestaw
+npm run test:e2e:ui      # tryb interaktywny
+npm run test:e2e:report  # ostatni raport HTML
+```
+
+| Plik | Co sprawdza |
+|---|---|
+| `e2e/reservation-flow.spec.ts` | pełne przejście czterech kroków aż do potwierdzenia i kontrola, że data, godzina, stolik i liczba gości docierają na ostatni ekran; naliczanie depozytu od osoby; blokada przycisku „dalej" bez kompletu danych; dobór stolika do liczby gości; nieklikalność stolika zajętego |
+| `e2e/guest-details-validation.spec.ts` | komunikaty walidacji imienia, e-maila, telefonu, kodu BLIK i zgody RODO; filtrowanie znaków w polu BLIK; formatowanie numeru karty i daty ważności; pełna płatność kartą zakończona potwierdzeniem |
+| `e2e/staff-access.spec.ts` | logowanie każdej z trzech ról, odrzucenie błędnego PIN-u, ochrona tras przed niezalogowanym gościem, odbicie kelnera od panelu kierownika i administratora, dostęp administratora do wszystkich paneli, strona 404 |
+
+Dwie reguły biznesowe, które testy pilnują wprost:
+
+- **Dobór stolika do liczby gości** — stolik jest dostępny, gdy jego pojemność mieści się
+  w przedziale `[liczba gości, liczba gości + 2]`. Czteroosobowy stolik nie zostanie
+  zaproponowany szóstce, ośmioosobowy nie pójdzie pod parę.
+- **Kontrola dostępu wg roli** — wejście pod adres powyżej swojej roli odsyła na `/login`,
+  a ekran logowania rozpoznaje aktywną sesję i zawraca pracownika do jego własnego panelu.
+
+Selektory opierają się na atrybutach `data-testid`, nie na klasach Tailwinda, więc zmiana
+stylowania nie wywraca testów.
+
+## Ciągła integracja
+
+`.github/workflows/ci.yml` — przy każdym pushu i pull requeście na `main`: `npm ci`,
+build produkcyjny, instalacja przeglądarki i pełny zestaw Playwrighta. Raport HTML
+zostaje jako artefakt builda na 14 dni.
 
 ## Struktura
 
@@ -76,6 +117,7 @@ src/app/components/   komponenty własne + biblioteka UI
 src/app/routes.tsx    routing
 supabase/functions/   funkcje serwerowe
 utils/supabase/       klient i konfiguracja
+e2e/                  testy end-to-end (fixtures.ts = wspólne kroki)
 ```
 
 ## Pochodzenie i zależności

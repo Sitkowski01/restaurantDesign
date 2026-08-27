@@ -483,6 +483,7 @@ export function GuestDetailsPage() {
                   <button
                     key={id}
                     onClick={() => setPaymentMethod(id)}
+                    data-testid={`payment-method-${id}`}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs transition-all duration-200 flex-1 justify-center"
                     style={{
                       fontFamily: C.sans,
@@ -630,6 +631,7 @@ export function GuestDetailsPage() {
                     border: gdpr ? "none" : "2px solid rgba(243,239,234,0.2)",
                   }}
                   onClick={() => setGdpr(!gdpr)}
+                  data-testid="gdpr-consent"
                 >
                   {gdpr && <span style={{ color: "#1E1A16", fontSize: "11px", fontWeight: 700 }}>✓</span>}
                 </div>
@@ -647,7 +649,7 @@ export function GuestDetailsPage() {
 
               {/* Error */}
               {formError && (
-                <div className="rounded-lg p-4" style={{ backgroundColor: "rgba(200,80,80,0.1)", border: "1px solid rgba(200,80,80,0.25)" }}>
+                <div data-testid="form-error" className="rounded-lg p-4" style={{ backgroundColor: "rgba(200,80,80,0.1)", border: "1px solid rgba(200,80,80,0.25)" }}>
                   <p className="text-sm" style={{ fontFamily: C.sans, fontWeight: 400, color: "rgba(220,100,100,0.9)" }}>
                     {formError}
                   </p>
@@ -661,6 +663,7 @@ export function GuestDetailsPage() {
                 </p>
                 <button
                   onClick={handleSubmit}
+                  data-testid="submit-reservation"
                   className="order-1 sm:order-2 flex items-center gap-2 px-6 py-3 sm:px-10 sm:py-4 rounded-lg transition-all duration-300 text-sm sm:text-base"
                   style={{
                     fontWeight: 500,

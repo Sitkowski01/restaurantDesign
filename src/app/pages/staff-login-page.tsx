@@ -171,6 +171,7 @@ export function StaffLoginPage() {
                 type="text"
                 value={name}
                 onChange={(e) => { setName(e.target.value); setError(""); }}
+                data-testid="staff-name"
                 placeholder="np. Jan Kowalski"
                 className="w-full pl-11 pr-4 py-3 rounded-xl text-sm outline-none transition-all duration-200"
                 style={{
@@ -216,6 +217,7 @@ export function StaffLoginPage() {
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handlePinChange(i, e.target.value)}
+                  data-testid={`pin-${i}`}
                   onKeyDown={(e) => handlePinKeyDown(i, e)}
                   className="w-12 h-14 text-center text-xl rounded-xl outline-none transition-all duration-200"
                   style={{
@@ -236,6 +238,7 @@ export function StaffLoginPage() {
           {/* Error message */}
           {error && (
             <div
+              data-testid="login-error"
               className="flex items-center gap-2 mb-6 px-4 py-3 rounded-xl text-sm"
               style={{
                 fontFamily: C.sans,
@@ -252,6 +255,7 @@ export function StaffLoginPage() {
           {/* Submit */}
           <button
             type="submit"
+            data-testid="staff-login-submit"
             disabled={isLoading}
             className="w-full py-3.5 rounded-xl text-sm uppercase tracking-[0.12em] transition-all duration-200 flex items-center justify-center gap-2"
             style={{
