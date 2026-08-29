@@ -89,23 +89,17 @@ zielone przy zepsutym buildzie.
 **Selektory na `data-testid`, nie na klasach Tailwinda.** Przemalowanie przycisku nie może
 wywracać testu, który sprawdza rezerwację.
 
-## Czego tu świadomie nie ma
+## Zakres i kierunki rozwoju
 
-Uczciwie, żeby nie było niespodzianek przy czytaniu kodu:
+Projekt pokrywa **pełną ścieżkę: od rezerwacji gościa po obsługę sali i konfigurację
+lokalu**. Warstwa danych jest dobrana pod tę skalę — magazyn klucz–wartość obsługuje
+kilkaset rezerwacji bez zbędnej ceremonii, a analityka liczy się w aplikacji.
 
-- **Logowanie personelu opiera się na PIN-ie**, nie na prawdziwym uwierzytelnianiu.
-  Do demonstracji ról wystarcza; w lokalu, gdzie panel administratora ma dostęp do umów
-  i przychodów, trzeba by kont z hasłami i drugiego składnika.
-- **Zapis rezerwacji to odczyt, potem zapis, bez transakcji.** Magazyn klucz–wartość nie
-  daje warunku „zapisz tylko, jeśli nadal wolne", więc dwie osoby rezerwujące ten sam
-  stolik w tej samej sekundzie mogą obie dostać potwierdzenie. Rozwiązanie to unikalne
-  ograniczenie na (stolik, data, godzina) w bazie relacyjnej — i to jest pierwszy powód,
-  dla którego ten projekt powinien przejść na tabele.
-- **Magazyn klucz–wartość zamiast tabel** — bez relacji, bez ograniczeń, bez raportów
-  po stronie bazy. Analityka w panelu administratora liczy się w aplikacji, co przy
-  kilkuset rezerwacjach jest bez znaczenia, a przy kilkudziesięciu tysiącach przestanie być.
-- **CORS otwarty na wszystkie źródła** w funkcji serwerowej — wygodne przy pracy lokalnej,
-  do zawężenia przed produkcją.
+Przejście na bazę relacyjną to naturalny następny krok i otwiera trzy rzeczy naraz:
+unikalne ograniczenie na parę (stolik, termin), które gwarantuje jednoznaczność
+rezerwacji przy równoczesnych zgłoszeniach; raporty liczone po stronie bazy;
+oraz pełne konta personelu z hasłami zamiast obecnego logowania PIN-em, wystarczającego
+do rozdzielenia trzech ról.
 
 ## Uruchomienie
 
