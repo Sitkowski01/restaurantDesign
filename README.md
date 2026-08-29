@@ -59,6 +59,54 @@ rozbudowany widok — łącznie ponad 7 000 linii kodu.
 | Backend | Supabase — Edge Functions, magazyn klucz–wartość |
 | Hosting | Vercel |
 
+## Decyzje projektowe
+
+**Klucz rezerwacji niesie datę i godzinę.** Rezerwacje leżą pod
+`reservation:{data}:{godzina}:{id}`, więc pytanie „co jest zajęte tego dnia o tej porze"
+to jeden skan po prefiksie, bez przeglądania całego zbioru. Ta sama sztuczka obsługuje
+stoliki (`table:{id}`). Cena: nie da się tanio zapytać „wszystkie rezerwacje tego gościa" —
+trzeba by drugiego indeksu, którego tu nie ma, bo żaden ekran tego nie potrzebuje.
+
+**Plan sali jest danymi, nie układem w kodzie.** Każdy stolik trzyma własne `x`, `y`,
+`width`, `height` i `shape`, dlatego menedżer może przeciągnąć stolik w panelu i zmiana
+zostaje. Gdyby rozkład sali siedział w komponencie, każda zmiana ustawienia oznaczałaby
+wdrożenie.
+
+**Dopasowanie stolika to przedział, nie równość.** Stolik pasuje, gdy jego pojemność
+mieści się w `[liczba gości, liczba gości + 2]`. Sama równość odrzucałaby trójkę przy
+czteroosobowym stoliku, a brak górnego ograniczenia sadzałby parę przy stole na osiem
+i wypychał z sali większe grupy.
+
+**Trzy osobne panele zamiast jednego z uprawnieniami.** Kelner w trakcie serwisu, menedżer
+układający grafik i administrator konfigurujący lokal patrzą na zupełnie inne dane. Jeden
+ekran z ukrywanymi kawałkami byłby zlepkiem trzech, a kontrola dostępu rozsypałaby się po
+warunkach w widoku. Tu rola decyduje o trasie, a nie o tym, co jest schowane.
+
+**Testy chodzą po zbudowanej paczce.** `vite preview` serwuje dokładnie to, co trafia na
+produkcję. Serwer deweloperski ma inny bundling i inne ścieżki — testy na nim potrafią być
+zielone przy zepsutym buildzie.
+
+**Selektory na `data-testid`, nie na klasach Tailwinda.** Przemalowanie przycisku nie może
+wywracać testu, który sprawdza rezerwację.
+
+## Czego tu świadomie nie ma
+
+Uczciwie, żeby nie było niespodzianek przy czytaniu kodu:
+
+- **Logowanie personelu opiera się na PIN-ie**, nie na prawdziwym uwierzytelnianiu.
+  Do demonstracji ról wystarcza; w lokalu, gdzie panel administratora ma dostęp do umów
+  i przychodów, trzeba by kont z hasłami i drugiego składnika.
+- **Zapis rezerwacji to odczyt, potem zapis, bez transakcji.** Magazyn klucz–wartość nie
+  daje warunku „zapisz tylko, jeśli nadal wolne", więc dwie osoby rezerwujące ten sam
+  stolik w tej samej sekundzie mogą obie dostać potwierdzenie. Rozwiązanie to unikalne
+  ograniczenie na (stolik, data, godzina) w bazie relacyjnej — i to jest pierwszy powód,
+  dla którego ten projekt powinien przejść na tabele.
+- **Magazyn klucz–wartość zamiast tabel** — bez relacji, bez ograniczeń, bez raportów
+  po stronie bazy. Analityka w panelu administratora liczy się w aplikacji, co przy
+  kilkuset rezerwacjach jest bez znaczenia, a przy kilkudziesięciu tysiącach przestanie być.
+- **CORS otwarty na wszystkie źródła** w funkcji serwerowej — wygodne przy pracy lokalnej,
+  do zawężenia przed produkcją.
+
 ## Uruchomienie
 
 ```bash
